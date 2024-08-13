@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Version - Update</title>
+    <link rel="icon" type="image/jpeg" href="/static/favorite.jpg">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.5s, color 0.5s;
+        }
+        body.light-mode {
+            background-color: white;
+            color: black;
+        }
+        body.dark-mode {
+            background-color: #2c2c2c;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            background-color: #1E90FF;
+            color: white;
+            cursor: pointer;
+            font-size: 1em;
+            display: block;
+            margin: 20px auto;
+        }
+        .back-button {
+            background-color: transparent;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 1em;
+            display: inline-block;
+            margin-bottom: 20px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 1.1em;
+            color: #FF4500; /* For error messages */
+        }
+        .message.success {
+            color: #32CD32; /* For success messages */
+        }
+    </style>
+</head>
+<body onload="loadTheme()">
+    <div class="container">
+        <button class="back-button" onclick="location.href='/admin'">Back</button>
+        <h1>Version - Update</h1>
+        <p>Current version: <strong>{{ current_version }}</strong></p>
+        <form method="POST" action="/admin_task?task=verzija_update">
+            <button type="submit">Check for a new version and update</button>
+        </form>
+        {% if message %}
+            <div class="message {{ message_type }}">{{ message }}</div>
+        {% endif %}
+    </div>
+    <script>
+        function loadTheme() {
+            const theme = localStorage.getItem('theme');
+            if (theme) {
+                document.body.classList.add(theme);
+            } else {
+                document.body.classList.add('light-mode');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BackupWatch - Mail Configuration</title>
+    <link rel="icon" type="image/jpeg" href="/static/favorite.jpg">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 10px;
+            transition: background-color 0.5s, color 0.5s;
+        }
+        body.light-mode {
+            background-color: white;
+            color: black;
+        }
+        body.dark-mode {
+            background-color: #2c2c2c;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            background-color: #444;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        body.light-mode form {
+            background-color: #f8f9fa;
+            color: black;
+        }
+        body.dark-mode form {
+            background-color: #444;
+            color: white;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 3px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            background-color: #1E90FF;
+            color: white;
+            cursor: pointer;
+        }
+        .back-button {
+            background-color: transparent;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+        .alert-success {
+            color: #3c763d;
+            background-color: #dff0d8;
+            border-color: #d6e9c6;
+        }
+        .alert-danger {
+            color: #a94442;
+            background-color: #f2dede;
+            border-color: #ebccd1;
+        }
+        .status-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .status-indicator.green {
+            background-color: green;
+        }
+        .status-indicator.red {
+            background-color: red;
+        }
+    </style>
+</head>
+<body onload="loadTheme(); checkEmailConnection()">
+    <button class="back-button" onclick="location.href='/admin'">Back</button>
+    <div class="container">
+        <h1>Mail Configuration</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <div>
+            <span id="status-indicator" class="status-indicator"></span>
+            <span id="status-text">Checking connection...</span>
+        </div>
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <label for="email">Email:</label>
+            {{ form.email(class="form-control", value=email) }}
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password" class="form-control" value="{{ password }}">
+            <label for="imap_server">IMAP Server:</label>
+            {{ form.imap_server(class="form-control", value=imap_server) }}
+            <label for="imap_port">IMAP Port:</label>
+            {{ form.imap_port(class="form-control", value=imap_port or 993) }}
+            <label for="smtp_server">SMTP Server:</label>
+            {{ form.smtp_server(class="form-control", value=smtp_server) }}
+            <label for="smtp_port">SMTP Port:</label>
+            {{ form.smtp_port(class="form-control", value=smtp_port or 587) }}
+            <button type="submit">Save</button>
+        </form>
+    </div>
+    <script>
+        function loadTheme() {
+            const theme = localStorage.getItem('theme');
+            if (theme) {
+                document.body.classList.add(theme);
+            } else {
+                document.body.classList.add('light-mode');
+            }
+        }
+
+        function checkEmailConnection() {
+            fetch('/check_email_connection')
+                .then(response => response.json())
+                .then(data => {
+                    const statusIndicator = document.getElementById('status-indicator');
+                    const statusText = document.getElementById('status-text');
+                    if (data.success) {
+                        statusIndicator.classList.add('green');
+                        statusText.textContent = 'Connected to the email server';
+                    } else {
+                        statusIndicator.classList.add('red');
+                        statusText.textContent = 'Not connected to the email server';
+                    }
+                })
+                .catch(error => {
+                    const statusIndicator = document.getElementById('status-indicator');
+                    const statusText = document.getElementById('status-text');
+                    statusIndicator.classList.add('red');
+                    statusText.textContent = 'Error checking connection';
+                });
+        }
+    </script>
+</body>
+</html>

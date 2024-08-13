@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BackupWatch - Backup Details: {{ backup.name }}</title>
+    <link rel="icon" type="image/jpeg" href="/static/favorite.jpg">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 10px;
+            transition: background-color 0.5s, color 0.5s;
+        }
+        body.light-mode {
+            background-color: white;
+            color: black;
+        }
+        body.dark-mode {
+            background-color: #2c2c2c;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            background-color: #444;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        body.light-mode form {
+            background-color: #f8f9fa;
+            color: black;
+        }
+        body.dark-mode form {
+            background-color: #444;
+            color: white;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 3px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            background-color: #1E90FF;
+            color: white;
+            cursor: pointer;
+        }
+        .back-button {
+            background-color: transparent;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body onload="loadTheme()">
+    <button class="back-button" onclick="location.href='/'">Back</button>
+    <div class="container">
+        <h1>Backup Details: {{ backup.name }}</h1>
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <label for="name">Backup Name:</label>
+            {{ form.name(class="form-control") }}
+            <label for="email">Sender (email):</label>
+            {{ form.email(class="form-control") }}
+            <label for="subject">Subject (keyword):</label>
+            {{ form.subject(class="form-control") }}
+            <label for="success_keyword">Content (success keyword):</label>
+            {{ form.success_keyword(class="form-control") }}
+            <label for="failure_keyword">Failure keyword:</label>
+            {{ form.failure_keyword(class="form-control") }}
+            <label for="interval_hours">Check Interval (hours):</label>
+            {{ form.interval_hours(class="form-control") }}
+            <label for="last_checked">Last Checked:</label>
+            <input type="text" id="last_checked" name="last_checked" value="{{ backup.last_checked }}" disabled>
+            <button type="submit">Save</button>
+            <button type="button" onclick="deleteBackup('{{ backup.id }}')">Delete</button>
+        </form>
+    </div>
+    <script>
+        function loadTheme() {
+            const theme = localStorage.getItem('theme');
+            if (theme) {
+                document.body.classList.add(theme);
+            } else {
+                document.body.classList.add('light-mode');
+            }
+        }
+
+        function deleteBackup(id) {
+            fetch('/delete/' + id, { method: 'POST' })
+                .then(response => window.location.href = '/');
+        }
+    </script>
+</body>
+</html>
