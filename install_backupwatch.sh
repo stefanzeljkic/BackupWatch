@@ -42,7 +42,7 @@ pip3 install --user -r requirements.txt
 
 # 6. Ensure bleach and python-dotenv are installed
 pip3 install --user bleach
-pip3 install --user python-dotenv
+pip install python-dotenv
 
 # 7. Check if python-dotenv is installed correctly
 if ! python3 -c "import dotenv" &> /dev/null; then
