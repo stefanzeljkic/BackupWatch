@@ -1,15 +1,12 @@
 #!/bin/bash
 
-# 1. Set the frontend to non-interactive to avoid prompts
-export DEBIAN_FRONTEND=noninteractive
-
-# 2. Install basic packages
+# 1. Install basic packages
 sudo apt-get install -y git curl python3 python3-pip ufw
 
-# 3. Configure dpkg if it was interrupted previously
+# 2. Configure dpkg if it was interrupted previously
 sudo dpkg --configure -a
 
-# 4. Clone the GitHub repository
+# 3. Clone the GitHub repository
 if [ -d "/opt/BackupWatch" ]; then
     echo "BackupWatch directory already exists. Updating the repository..."
     cd /opt/BackupWatch
@@ -20,7 +17,7 @@ else
     cd /opt/BackupWatch
 fi
 
-# 5. Create or update the requirements.txt file
+# 4. Create or update the requirements.txt file
 echo "Creating/updating requirements.txt file..."
 sudo bash -c 'cat <<EOF > /opt/BackupWatch/requirements.txt
 blinker==1.8.2
@@ -38,33 +35,32 @@ Werkzeug==3.0.3
 WTForms==3.1.2
 bleach
 python-dotenv
-email_validator
 EOF'
 
-# 6. Install the required libraries from requirements.txt
+# 5. Install the required libraries from requirements.txt
 sudo pip3 install -r /opt/BackupWatch/requirements.txt
 
-# 7. Ensure bleach and python-dotenv are installed
+# 6. Ensure bleach, python-dotenv, and email_validator are installed
 sudo pip3 install bleach
-sudo pip install python-dotenv
-sudo pip install email_validator
+sudo pip3 install python-dotenv
+sudo pip3 install email_validator
 
-# 8. Check if python-dotenv is installed correctly
+# 7. Check if python-dotenv is installed correctly
 if ! python3 -c "import dotenv" &> /dev/null; then
     echo "Error: python-dotenv failed to install."
     exit 1
 fi
 
-# 9. Enable UFW (firewall)
+# 8. Enable UFW (firewall)
 echo "Enabling UFW (firewall)..."
-sudo ufw enable
+echo "y" | sudo ufw enable
 
-# 10. Open port 8000 in the firewall
+# 9. Open port 8000 in the firewall
 echo "Opening port 8000 in the firewall..."
 sudo ufw allow 8000
 sudo ufw reload
 
-# 11. Create a systemd service file
+# 10. Create a systemd service file
 echo "Creating systemd service file..."
 sudo bash -c 'cat <<EOF > /etc/systemd/system/backupwatch.service
 [Unit]
@@ -81,8 +77,8 @@ Restart=always
 WantedBy=multi-user.target
 EOF'
 
-# 12. Enable and start the systemd service
-echo "Enabling and starting the BackupWatch service..."
+# 11. Reload systemd, enable and start the service
+echo "Reloading systemd, enabling and starting the BackupWatch service..."
 sudo systemctl daemon-reload
 sudo systemctl enable backupwatch.service
 sudo systemctl start backupwatch.service
