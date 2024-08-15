@@ -26,7 +26,16 @@ else
     pip3 install Flask==2.0.1 Werkzeug==2.0.1 Flask-WTF==0.14.3
 fi
 
-# 5. Create a systemd service file
+# 5. Enable UFW (firewall)
+echo "Enabling UFW (firewall)..."
+sudo ufw enable
+
+# 6. Open port 8000 in the firewall
+echo "Opening port 8000 in the firewall..."
+sudo ufw allow 8000
+sudo ufw reload
+
+# 7. Create a systemd service file
 echo "Creating systemd service file..."
 sudo bash -c 'cat <<EOF > /etc/systemd/system/backupwatch.service
 [Unit]
@@ -43,15 +52,10 @@ Restart=always
 WantedBy=multi-user.target
 EOF'
 
-# 6. Enable and start the systemd service
+# 8. Enable and start the systemd service
 echo "Enabling and starting the BackupWatch service..."
 sudo systemctl daemon-reload
 sudo systemctl enable backupwatch.service
 sudo systemctl start backupwatch.service
-
-# 7. Open port 8000 in the firewall
-echo "Opening port 8000 in the firewall..."
-sudo ufw allow 8000
-sudo ufw reload
 
 echo "Installation and configuration are complete."
