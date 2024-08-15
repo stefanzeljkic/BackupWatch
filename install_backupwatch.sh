@@ -17,19 +17,38 @@ else
     cd BackupWatch
 fi
 
-# 4. Install the required libraries with the exact versions used on Windows
-pip3 install --user Flask==3.0.3 Flask-WTF==1.2.1 Jinja2==3.1.4 Werkzeug==3.0.3 SQLAlchemy==2.0.32 WTForms==3.1.2 blinker==1.8.2 click==8.1.7 colorama==0.4.6 greenlet==3.0.3 itsdangerous==2.2.0 MarkupSafe==2.1.5 typing_extensions==4.12.2
+# 4. Create or update the requirements.txt file
+echo "Creating/updating requirements.txt file..."
+cat <<EOF > requirements.txt
+blinker==1.8.2
+click==8.1.7
+colorama==0.4.6
+Flask==3.0.3
+Flask-WTF==1.2.1
+greenlet==3.0.3
+itsdangerous==2.2.0
+Jinja2==3.1.4
+MarkupSafe==2.1.5
+SQLAlchemy==2.0.32
+typing_extensions==4.12.2
+Werkzeug==3.0.3
+WTForms==3.1.2
+bleach
+EOF
 
-# 5. Enable UFW (firewall)
+# 5. Install the required libraries from requirements.txt
+pip3 install --user -r requirements.txt
+
+# 6. Enable UFW (firewall)
 echo "Enabling UFW (firewall)..."
 sudo ufw enable
 
-# 6. Open port 8000 in the firewall
+# 7. Open port 8000 in the firewall
 echo "Opening port 8000 in the firewall..."
 sudo ufw allow 8000
 sudo ufw reload
 
-# 7. Create a systemd service file
+# 8. Create a systemd service file
 echo "Creating systemd service file..."
 sudo bash -c 'cat <<EOF > /etc/systemd/system/backupwatch.service
 [Unit]
@@ -46,7 +65,7 @@ Restart=always
 WantedBy=multi-user.target
 EOF'
 
-# 8. Enable and start the systemd service
+# 9. Enable and start the systemd service
 echo "Enabling and starting the BackupWatch service..."
 sudo systemctl daemon-reload
 sudo systemctl enable backupwatch.service
