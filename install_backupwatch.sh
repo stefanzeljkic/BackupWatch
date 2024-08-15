@@ -20,10 +20,10 @@ fi
 # 4. Install the required libraries from requirements.txt if it exists
 #    and force the installation of specific versions of Flask, Werkzeug, and Flask-WTF
 if [ -f "requirements.txt" ]; then
-    pip3 install --force-reinstall Flask==2.0.1 Werkzeug==2.0.1 Flask-WTF==0.14.3 SQLAlchemy==1.4.15 requests==2.25.1
+    pip3 install --user --force-reinstall Flask==2.0.1 Werkzeug==2.0.1 Flask-WTF==0.14.3 SQLAlchemy==1.4.15 requests==2.25.1
 else
     echo "requirements.txt file not found, installing Flask and Flask-WTF manually..."
-    pip3 install Flask==2.0.1 Werkzeug==2.0.1 Flask-WTF==0.14.3
+    pip3 install --user Flask==2.0.1 Werkzeug==2.0.1 Flask-WTF==0.14.3
 fi
 
 # 5. Enable UFW (firewall)
