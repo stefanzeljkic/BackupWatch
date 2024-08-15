@@ -140,86 +140,98 @@ def test_email_connection(email, password, imap_server, imap_port):
 # Connect to the email server and check emails
 def check_email():
     logging.info("Starting email check")
-    mail = imaplib.IMAP4_SSL(IMAP_SERVER, IMAP_PORT)
-    mail.login(EMAIL, PASSWORD)
-    mail.select("inbox")
+    try:
+        mail = imaplib.IMAP4_SSL(IMAP_SERVER, IMAP_PORT)
+        mail.login(EMAIL, PASSWORD)
+        mail.select("inbox")
 
-    now = datetime.datetime.now()
+        now = datetime.datetime.now()
 
-    with get_db_connection() as conn:
-        backups = conn.execute('SELECT * FROM backups').fetchall()
+        with get_db_connection() as conn:
+            backups = conn.execute('SELECT * FROM backups').fetchall()
 
-    for backup in backups:
-        logging.info(f"Checking emails for backup: {backup['name']} (ID: {backup['id']})")
-        status, messages = mail.search(None, f'(FROM "{backup["email"]}" SUBJECT "{backup["subject"]}")')
-        email_ids = messages[0].split()
+        for backup in backups:
+            logging.info(f"Checking emails for backup: {backup['name']} (ID: {backup['id']})")
+            status, messages = mail.search(None, f'(FROM "{backup["email"]}" SUBJECT "{backup["subject"]}")')
+            email_ids = messages[0].split()
 
-        backup_status = 'red'
-        if email_ids:
-            latest_email_id = email_ids[-1]
-            _, msg = mail.fetch(latest_email_id, "(RFC822)")
-            for response_part in msg:
-                if isinstance(response_part, tuple):
-                    msg = email.message_from_bytes(response_part[1])
-                    body = ""
-                    if msg.is_multipart():
-                        for part in msg.walk():
-                            if part.get_content_type() == "text/plain":
-                                try:
-                                    body = part.get_payload(decode=True).decode()
-                                except UnicodeDecodeError:
+            backup_status = 'red'
+            if email_ids:
+                latest_email_id = email_ids[-1]
+                _, msg = mail.fetch(latest_email_id, "(RFC822)")
+                for response_part in msg:
+                    if isinstance(response_part, tuple):
+                        msg = email.message_from_bytes(response_part[1])
+                        body = ""
+                        if msg.is_multipart():
+                            for part in msg.walk():
+                                if part.get_content_type() == "text/plain":
                                     try:
-                                        body = part.get_payload(decode=True).decode('latin1')
+                                        body = part.get_payload(decode=True).decode()
                                     except UnicodeDecodeError:
-                                        body = part.get_payload(decode=True).decode('utf-8', 'ignore')
-                                break
-                    else:
-                        try:
-                            body = msg.get_payload(decode=True).decode()
-                        except UnicodeDecodeError:
+                                        try:
+                                            body = part.get_payload(decode=True).decode('latin1')
+                                        except UnicodeDecodeError:
+                                            body = part.get_payload(decode=True).decode('utf-8', 'ignore')
+                                    break
+                        else:
                             try:
-                                body = msg.get_payload(decode=True).decode('latin1')
+                                body = msg.get_payload(decode=True).decode()
                             except UnicodeDecodeError:
-                                body = part.get_payload(decode=True).decode('utf-8', 'ignore')
+                                try:
+                                    body = msg.get_payload(decode=True).decode('latin1')
+                                except UnicodeDecodeError:
+                                    body = part.get_payload(decode=True).decode('utf-8', 'ignore')
 
-                    logging.info(f"Email body for backup '{backup['name']}']: {body}")
+                        logging.info(f"Email body for backup '{backup['name']}']: {body}")
 
-                    if backup["success_keyword"] in body:
-                        backup_status = 'green'
-                    elif backup["failure_keyword"] in body:
-                        backup_status = 'red'
+                        if backup["success_keyword"] in body:
+                            backup_status = 'green'
+                        elif backup["failure_keyword"] in body:
+                            backup_status = 'red'
 
-                    email_date = msg["Date"]
-                    email_datetime = datetime.datetime.strptime(email_date, "%a, %d %b %Y %H:%M:%S %z").replace(tzinfo=None)
+                        email_date = msg["Date"]
+                        email_datetime = datetime.datetime.strptime(email_date, "%a, %d %b %Y %H:%M:%S %z").replace(tzinfo=None)
 
-                    with get_db_connection() as conn:
-                        conn.execute('UPDATE backups SET status = ?, last_checked = ? WHERE id = ?',
-                                     (backup_status, email_datetime.strftime("%Y-%m-%d %H:%M:%S"), backup["id"]))
-                        logging.info(f"Backup '{backup['name']}' (ID: {backup['id']}) updated with status '{backup_status}' and last_checked '{email_datetime.strftime('%Y-%m-%d %H:%M:%S')}'")
-        else:
-            last_checked = backup["last_checked"]
-            if last_checked:
-                last_checked = datetime.datetime.strptime(last_checked, "%Y-%m-%d %H:%M:%S")
+                        with get_db_connection() as conn:
+                            conn.execute('UPDATE backups SET status = ?, last_checked = ? WHERE id = ?',
+                                         (backup_status, email_datetime.strftime("%Y-%m-%d %H:%M:%S"), backup["id"]))
+                            logging.info(f"Backup '{backup['name']}' (ID: {backup['id']}) updated with status '{backup_status}' and last_checked '{email_datetime.strftime('%Y-%m-%d %H:%M:%S')}'")
             else:
-                last_checked = now
-            diff_hours = (now - last_checked).total_seconds() / 3600
-            logging.info(f"Checking backup '{backup['name']}'] (ID: {backup['id']}) with last_checked '{backup['last_checked']}' and diff_hours '{diff_hours}'")
-            if diff_hours >= backup["interval_hours"] * 2:
-                backup_status = 'purple'
-            elif diff_hours >= backup["interval_hours"]:
-                backup_status = 'yellow'
-            else:
-                backup_status = backup["status"]  # retain current status if within interval
+                last_checked = backup["last_checked"]
+                if last_checked:
+                    last_checked = datetime.datetime.strptime(last_checked, "%Y-%m-%d %H:%M:%S")
+                else:
+                    last_checked = now
+                diff_hours = (now - last_checked).total_seconds() / 3600
+                logging.info(f"Checking backup '{backup['name']}'] (ID: {backup['id']}) with last_checked '{backup['last_checked']}' and diff_hours '{diff_hours}'")
+                if diff_hours >= backup["interval_hours"] * 2:
+                    backup_status = 'purple'
+                elif diff_hours >= backup["interval_hours"]:
+                    backup_status = 'yellow'
+                else:
+                    backup_status = backup["status"]  # retain current status if within interval
 
-            logging.info(f"Calculated status for backup '{backup['name']}' (ID: {backup['id']}) as '{backup_status}'")
+                logging.info(f"Calculated status for backup '{backup['name']}' (ID: {backup['id']}) as '{backup_status}'")
 
-            with get_db_connection() as conn:
-                conn.execute('UPDATE backups SET status = ?, last_checked = ? WHERE id = ?',
-                             (backup_status, now.strftime("%Y-%m-%d %H:%M:%S"), backup["id"]))
-                logging.info(f"Backup '{backup['name']}' (ID: {backup['id']}) checked with status '{backup_status}' and last_checked '{now.strftime('%Y-%m-%d %H:%M:%S')}'")
+                with get_db_connection() as conn:
+                    conn.execute('UPDATE backups SET status = ?, last_checked = ? WHERE id = ?',
+                                 (backup_status, now.strftime("%Y-%m-%d %H:%M:%S"), backup["id"]))
+                    logging.info(f"Backup '{backup['name']}' (ID: {backup['id']}) checked with status '{backup_status}' and last_checked '{now.strftime('%Y-%m-%d %H:%M:%S')}'")
 
-    mail.logout()
-    logging.info("Email check completed")
+        mail.logout()
+        logging.info("Email check completed")
+        
+    except TimeoutError:
+        logging.error("Timeout error occurred while trying to connect to the email server.")
+        flash("Failed to connect to the email server due to timeout. Please check your server settings and try again.", "danger")
+    except imaplib.IMAP4.error as e:
+        logging.error(f"IMAP error occurred: {e}")
+        flash(f"IMAP error: {str(e)}. Please check your server settings and try again.", "danger")
+    except Exception as e:
+        logging.error(f"An unexpected error occurred: {e}")
+        flash(f"An unexpected error occurred: {str(e)}. Please try again later.", "danger")
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
