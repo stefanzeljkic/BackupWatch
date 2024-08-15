@@ -39,16 +39,19 @@ EOF
 # 5. Install the required libraries from requirements.txt
 pip3 install --user -r requirements.txt
 
-# 6. Enable UFW (firewall)
+# 6. Install bleach separately if not installed from requirements.txt
+pip3 install --user bleach
+
+# 7. Enable UFW (firewall)
 echo "Enabling UFW (firewall)..."
 sudo ufw enable
 
-# 7. Open port 8000 in the firewall
+# 8. Open port 8000 in the firewall
 echo "Opening port 8000 in the firewall..."
 sudo ufw allow 8000
 sudo ufw reload
 
-# 8. Create a systemd service file
+# 9. Create a systemd service file
 echo "Creating systemd service file..."
 sudo bash -c 'cat <<EOF > /etc/systemd/system/backupwatch.service
 [Unit]
@@ -65,7 +68,7 @@ Restart=always
 WantedBy=multi-user.target
 EOF'
 
-# 9. Enable and start the systemd service
+# 10. Enable and start the systemd service
 echo "Enabling and starting the BackupWatch service..."
 sudo systemctl daemon-reload
 sudo systemctl enable backupwatch.service
