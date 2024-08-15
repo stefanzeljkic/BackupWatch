@@ -1,42 +1,58 @@
 #!/bin/bash
 
-# 1. Update sistem i instaliraj osnovne pakete
+# 1. Update the system and install basic packages
 sudo apt-get update
 sudo apt-get upgrade -y
-sudo apt-get install -y git curl
+sudo apt-get install -y git curl python3 python3-pip ufw
 
-# 2. Konfiguriši dpkg ako je prethodno bio prekinut
+# 2. Configure dpkg if it was interrupted previously
 sudo dpkg --configure -a
 
-# 3. Instaliraj Python ako već nije instaliran
-if ! command -v python3 &> /dev/null; then
-    sudo apt-get install -y python3
-fi
-
-# 4. Proveri da li je pip3 instaliran, ako nije, instaliraj ga
-if ! command -v pip3 &> /dev/null; then
-    sudo apt-get install -y python3-pip
-fi
-
-# 5. Kloniraj GitHub repozitorijum
+# 3. Clone the GitHub repository
 if [ -d "BackupWatch" ]; then
-    echo "Direktorijum BackupWatch već postoji. Ažuriranje repozitorijuma..."
+    echo "BackupWatch directory already exists. Updating the repository..."
     cd BackupWatch
     git pull origin main
 else
-    echo "Kloniranje repozitorijuma..."
+    echo "Cloning the repository..."
     git clone https://github.com/stefanzeljkic/BackupWatch.git
     cd BackupWatch
 fi
 
-# 6. Instaliraj potrebne biblioteke iz requirements.txt ako postoji
+# 4. Install the required libraries from requirements.txt if it exists
 if [ -f "requirements.txt" ]; then
     pip3 install -r requirements.txt
 else
-    echo "Fajl requirements.txt nije pronađen, instaliraću Flask ručno..."
+    echo "requirements.txt file not found, installing Flask manually..."
     pip3 install flask
 fi
 
-# 7. Pokreni aplikaciju
-echo "Pokretanje aplikacije..."
-python3 app.py
+# 5. Create a systemd service file
+echo "Creating systemd service file..."
+sudo bash -c 'cat <<EOF > /etc/systemd/system/backupwatch.service
+[Unit]
+Description=BackupWatch Service
+After=network.target
+
+[Service]
+User=backupwatch
+WorkingDirectory=/home/backupwatch/BackupWatch
+ExecStart=/usr/bin/python3 /home/backupwatch/BackupWatch/app.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF'
+
+# 6. Enable and start the systemd service
+echo "Enabling and starting the BackupWatch service..."
+sudo systemctl daemon-reload
+sudo systemctl enable backupwatch.service
+sudo systemctl start backupwatch.service
+
+# 7. Open port 8000 in the firewall
+echo "Opening port 8000 in the firewall..."
+sudo ufw allow 8000
+sudo ufw reload
+
+echo "Installation and configuration are complete."
