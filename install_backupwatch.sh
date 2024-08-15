@@ -39,7 +39,7 @@ EOF
 # 5. Install the required libraries from requirements.txt
 pip3 install --user -r requirements.txt
 
-# 6. Install bleach separately if not installed from requirements.txt
+# 6. Ensure bleach is installed
 pip3 install --user bleach
 
 # 7. Enable UFW (firewall)
