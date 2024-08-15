@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 1. Update the system and install basic packages
+# 1. Install basic packages
 sudo apt-get install -y git curl python3 python3-pip ufw
 
 # 2. Configure dpkg if it was interrupted previously
@@ -18,11 +18,12 @@ else
 fi
 
 # 4. Install the required libraries from requirements.txt if it exists
+#    and force the installation of specific versions of Flask and Werkzeug
 if [ -f "requirements.txt" ]; then
-    pip3 install -r requirements.txt
+    pip3 install --force-reinstall Flask==2.0.1 Werkzeug==2.0.1 SQLAlchemy==1.4.15 requests==2.25.1
 else
     echo "requirements.txt file not found, installing Flask manually..."
-    pip3 install flask
+    pip3 install Flask==2.0.1 Werkzeug==2.0.1
 fi
 
 # 5. Create a systemd service file
