@@ -26,7 +26,7 @@ app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SECURE=False,  # This will work only if using HTTPS
+    SESSION_COOKIE_SECURE=True,  # This will work only if using HTTPS
     SESSION_COOKIE_SAMESITE='Lax'
 )
 
@@ -47,7 +47,8 @@ ROLES = ["Guest", "Moderator", "Admin"]
 
 # Load version from config file
 def load_config():
-    with open('config.json', 'r') as f:
+    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json')
+    with open(config_path, 'r') as f:
         return json.load(f)
 
 config = load_config()
