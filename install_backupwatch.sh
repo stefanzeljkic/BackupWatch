@@ -42,7 +42,8 @@ sudo pip3 install -r /opt/BackupWatch/requirements.txt
 
 # 6. Ensure bleach and python-dotenv are installed
 sudo pip3 install bleach
-sudo pip3 install python-dotenv
+sudo pip install python-dotenv
+sudo pip install email_validator
 
 # 7. Check if python-dotenv is installed correctly
 if ! python3 -c "import dotenv" &> /dev/null; then
