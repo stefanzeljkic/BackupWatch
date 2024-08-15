@@ -34,13 +34,15 @@ typing_extensions==4.12.2
 Werkzeug==3.0.3
 WTForms==3.1.2
 bleach
+python-dotenv
 EOF
 
 # 5. Install the required libraries from requirements.txt
 pip3 install --user -r requirements.txt
 
-# 6. Ensure bleach is installed
+# 6. Ensure bleach and python-dotenv are installed
 pip3 install --user bleach
+pip3 install --user python-dotenv
 
 # 7. Enable UFW (firewall)
 echo "Enabling UFW (firewall)..."
