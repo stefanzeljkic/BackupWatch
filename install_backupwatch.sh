@@ -29,8 +29,13 @@ else
     cd BackupWatch
 fi
 
-# 6. Instaliraj potrebne biblioteke iz requirements.txt
-pip3 install -r requirements.txt
+# 6. Instaliraj potrebne biblioteke iz requirements.txt ako postoji
+if [ -f "requirements.txt" ]; then
+    pip3 install -r requirements.txt
+else
+    echo "Fajl requirements.txt nije pronađen, instaliraću Flask ručno..."
+    pip3 install flask
+fi
 
 # 7. Pokreni aplikaciju
 echo "Pokretanje aplikacije..."
