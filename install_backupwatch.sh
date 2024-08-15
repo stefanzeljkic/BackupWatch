@@ -1,8 +1,6 @@
 #!/bin/bash
 
 # 1. Update the system and install basic packages
-sudo apt-get update
-sudo apt-get upgrade -y
 sudo apt-get install -y git curl python3 python3-pip ufw
 
 # 2. Configure dpkg if it was interrupted previously
