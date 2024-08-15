@@ -17,14 +17,8 @@ else
     cd BackupWatch
 fi
 
-# 4. Install the required libraries from requirements.txt if it exists
-#    and force the installation of specific versions of Flask, Werkzeug, Flask-WTF, and Jinja2
-if [ -f "requirements.txt" ]; then
-    pip3 install --user --force-reinstall Flask==2.0.1 Werkzeug==2.0.1 Flask-WTF==0.14.0 Jinja2==2.11.3 SQLAlchemy==1.4.15 requests==2.25.1
-else
-    echo "requirements.txt file not found, installing Flask and Flask-WTF manually..."
-    pip3 install --user Flask==2.0.1 Werkzeug==2.0.1 Flask-WTF==0.14.0 Jinja2==2.11.3
-fi
+# 4. Install the required libraries with the exact versions used on Windows
+pip3 install --user Flask==3.0.3 Flask-WTF==1.2.1 Jinja2==3.1.4 Werkzeug==3.0.3 SQLAlchemy==2.0.32 WTForms==3.1.2 blinker==1.8.2 click==8.1.7 colorama==0.4.6 greenlet==3.0.3 itsdangerous==2.2.0 MarkupSafe==2.1.5 typing_extensions==4.12.2
 
 # 5. Enable UFW (firewall)
 echo "Enabling UFW (firewall)..."
