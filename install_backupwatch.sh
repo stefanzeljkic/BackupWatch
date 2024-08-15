@@ -7,19 +7,19 @@ sudo apt-get install -y git curl python3 python3-pip ufw
 sudo dpkg --configure -a
 
 # 3. Clone the GitHub repository
-if [ -d "BackupWatch" ]; then
+if [ -d "/opt/BackupWatch" ]; then
     echo "BackupWatch directory already exists. Updating the repository..."
-    cd BackupWatch
-    git pull origin main
+    cd /opt/BackupWatch
+    sudo git pull origin main
 else
     echo "Cloning the repository..."
-    git clone https://github.com/stefanzeljkic/BackupWatch.git
-    cd BackupWatch
+    sudo git clone https://github.com/stefanzeljkic/BackupWatch.git /opt/BackupWatch
+    cd /opt/BackupWatch
 fi
 
 # 4. Create or update the requirements.txt file
 echo "Creating/updating requirements.txt file..."
-cat <<EOF > requirements.txt
+sudo bash -c 'cat <<EOF > /opt/BackupWatch/requirements.txt
 blinker==1.8.2
 click==8.1.7
 colorama==0.4.6
@@ -35,14 +35,14 @@ Werkzeug==3.0.3
 WTForms==3.1.2
 bleach
 python-dotenv
-EOF
+EOF'
 
 # 5. Install the required libraries from requirements.txt
-pip3 install --user -r requirements.txt
+sudo pip3 install -r /opt/BackupWatch/requirements.txt
 
 # 6. Ensure bleach and python-dotenv are installed
-pip3 install --user bleach
-pip install python-dotenv
+sudo pip3 install bleach
+sudo pip3 install python-dotenv
 
 # 7. Check if python-dotenv is installed correctly
 if ! python3 -c "import dotenv" &> /dev/null; then
@@ -67,9 +67,9 @@ Description=BackupWatch Service
 After=network.target
 
 [Service]
-User=backupwatch
-WorkingDirectory=/home/backupwatch/BackupWatch
-ExecStart=/usr/bin/python3 /home/backupwatch/BackupWatch/app.py
+User=root
+WorkingDirectory=/opt/BackupWatch
+ExecStart=/usr/bin/python3 /opt/BackupWatch/app.py
 Restart=always
 
 [Install]
