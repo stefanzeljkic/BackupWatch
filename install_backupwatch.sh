@@ -44,16 +44,22 @@ pip3 install --user -r requirements.txt
 pip3 install --user bleach
 pip3 install --user python-dotenv
 
-# 7. Enable UFW (firewall)
+# 7. Check if python-dotenv is installed correctly
+if ! python3 -c "import dotenv" &> /dev/null; then
+    echo "Error: python-dotenv failed to install."
+    exit 1
+fi
+
+# 8. Enable UFW (firewall)
 echo "Enabling UFW (firewall)..."
 sudo ufw enable
 
-# 8. Open port 8000 in the firewall
+# 9. Open port 8000 in the firewall
 echo "Opening port 8000 in the firewall..."
 sudo ufw allow 8000
 sudo ufw reload
 
-# 9. Create a systemd service file
+# 10. Create a systemd service file
 echo "Creating systemd service file..."
 sudo bash -c 'cat <<EOF > /etc/systemd/system/backupwatch.service
 [Unit]
@@ -70,7 +76,7 @@ Restart=always
 WantedBy=multi-user.target
 EOF'
 
-# 10. Enable and start the systemd service
+# 11. Enable and start the systemd service
 echo "Enabling and starting the BackupWatch service..."
 sudo systemctl daemon-reload
 sudo systemctl enable backupwatch.service
