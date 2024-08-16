@@ -67,8 +67,8 @@ APACHE_CONF="/etc/apache2/sites-available/$DOMAIN.conf"
 echo "<VirtualHost *:80>
     ServerName $DOMAIN
     ProxyPreserveHost On
-    ProxyPass / http://localhost:8000/
-    ProxyPassReverse / http://localhost:8000/
+    ProxyPass / http://localhost:5000/
+    ProxyPassReverse / http://localhost:5000/
 </VirtualHost>
 
 <VirtualHost *:443>
@@ -81,8 +81,8 @@ echo "<VirtualHost *:80>
     SSLCertificateChainFile /etc/letsencrypt/live/$DOMAIN/chain.pem
 
     ProxyPreserveHost On
-    ProxyPass / http://localhost:8000/
-    ProxyPassReverse / http://localhost:8000/
+    ProxyPass / http://localhost:5000/
+    ProxyPassReverse / http://localhost:5000/
 </VirtualHost>" | sudo tee "$APACHE_CONF"
 
 # Enable the new virtual host
