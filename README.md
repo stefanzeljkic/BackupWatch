@@ -134,7 +134,10 @@ List of all time zones:
 ```
 timedatectl list-timezones
 ```
-Find your time zone and apply to sudo timedatectl set-timezone "time zone"
+Find your time zone and apply to sudo timedatectl set-timezone "time zone" and restart service:
+```
+sudo systemctl restart backupwatch.service
+```
 
 
 ---
