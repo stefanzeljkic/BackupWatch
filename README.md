@@ -74,7 +74,6 @@ BackupWatch uses color-coded squares to indicate the status of each backup:
 - 🟣 **Purple**: Backup is delayed by two intervals.
 - 🔴 **Red**: Backup failed or encountered an error.
 
----
 
 ## Additional Features
 
