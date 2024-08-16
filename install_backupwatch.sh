@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# 1. Set the frontend to non-interactive to avoid prompts
+export DEBIAN_FRONTEND=noninteractive
+
 # 1. Install basic packages
 sudo apt-get install -y git curl python3 python3-pip ufw
 
