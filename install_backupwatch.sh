@@ -69,6 +69,18 @@ fi
 
 # 9. Configure Nginx
 echo "Configuring Nginx..."
+
+# Remove old symbolic link if it exists
+if [ -L /etc/nginx/sites-enabled/backupwatch ]; then
+    sudo rm /etc/nginx/sites-enabled/backupwatch
+fi
+
+# Remove old configuration file if it exists
+if [ -f /etc/nginx/sites-available/backupwatch ]; then
+    sudo rm /etc/nginx/sites-available/backupwatch
+fi
+
+# Create a new configuration file
 sudo bash -c "cat <<EOF > /etc/nginx/sites-available/backupwatch
 server {
     listen 80;
@@ -83,7 +95,10 @@ server {
 }
 EOF"
 
+# Create a new symbolic link
 sudo ln -s /etc/nginx/sites-available/backupwatch /etc/nginx/sites-enabled/backupwatch
+
+# Test Nginx configuration and restart service
 sudo nginx -t && sudo systemctl restart nginx
 
 # 10. Obtain Let's Encrypt SSL certificate
