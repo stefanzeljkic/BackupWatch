@@ -1,34 +1,34 @@
 #!/bin/bash
 
-# Proveravamo da li se skripta pokreće sa root privilegijama
+# Check if the script is running with root privileges
 if [ "$(id -u)" -ne 0 ]; then
-   echo "Molimo pokrenite skriptu kao root ili koristite sudo."
+   echo "Please run the script as root or use sudo."
    exit 1
 fi
 
-# Prvo ćemo tražiti unos domena i emaila
-read -p "Unesite domen (npr. example.com): " DOMAIN < /dev/tty
+# First, we'll prompt for the domain and email address
+read -p "Enter the domain (e.g., example.com): " DOMAIN < /dev/tty
 if [ -z "$DOMAIN" ]; then
-    echo "Domen ne može biti prazan. Molimo unesite validan domen."
+    echo "Domain cannot be empty. Please enter a valid domain."
     exit 1
 fi
 
-read -p "Unesite email za Let's Encrypt: " EMAIL < /dev/tty
+read -p "Enter the email for Let's Encrypt: " EMAIL < /dev/tty
 if [ -z "$EMAIL" ]; then
-    echo "Email ne može biti prazan. Molimo unesite validan email."
+    echo "Email cannot be empty. Please enter a valid email."
     exit 1
 fi
 
-# Ažuriranje paketa
+# Update packages
 sudo apt update
 
-# Instalacija Apache, Certbot i Python modula, bez interaktivnih pitanja
+# Install Apache, Certbot, and Python modules without interactive prompts
 sudo DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confnew" install apache2 certbot python3-certbot-apache
 
-# Provera statusa Apache-a
+# Check the status of Apache
 sudo systemctl status apache2
 
-# Instalacija potrebnih modula za Apache
+# Install required Apache modules
 sudo a2enmod ssl
 sudo a2enmod proxy
 sudo a2enmod proxy_http
@@ -36,14 +36,14 @@ sudo a2enmod proxy_balancer
 sudo a2enmod lbmethod_byrequests
 sudo a2enmod headers
 
-# Otvaranje portova 80 i 443
+# Open ports 80 and 443
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
 
-# Nabavka SSL sertifikata preko Let's Encrypt-a
+# Obtain an SSL certificate via Let's Encrypt
 sudo certbot --apache --non-interactive --agree-tos -d "$DOMAIN" -m "$EMAIL"
 
-# Kreiranje Apache virtual host-a za preusmeravanje saobraćaja na aplikaciju koja radi na localhost:8000
+# Create an Apache virtual host for redirecting traffic to the application running on localhost:8000
 APACHE_CONF="/etc/apache2/sites-available/$DOMAIN.conf"
 
 echo "<VirtualHost *:80>
@@ -67,14 +67,14 @@ echo "<VirtualHost *:80>
     ProxyPassReverse / http://localhost:8000/
 </VirtualHost>" | sudo tee "$APACHE_CONF"
 
-# Omogućavanje novog virtual host-a
+# Enable the new virtual host
 sudo a2ensite "$DOMAIN.conf"
 
-# Restartovanje Apache-a da bi se primenile promene
+# Restart Apache to apply the changes
 sudo systemctl restart apache2
 
-# Kreiranje cron zadatka za obnovu SSL sertifikata na svakih 30 dana
+# Create a cron job to renew SSL certificates every 30 days
 (crontab -l 2>/dev/null; echo "0 0 1 * * /usr/sbin/service apache2 stop && /usr/bin/certbot renew && /usr/sbin/service apache2 start") | crontab -
 
-echo "Instalacija i konfiguracija je završena. Vaša aplikacija bi sada trebala biti dostupna na https://$DOMAIN"
-echo "Kreiran je cron zadatak za automatsku obnovu SSL sertifikata svakog prvog dana u mesecu."
+echo "Installation and configuration are complete. Your application should now be accessible at https://$DOMAIN"
+echo "A cron job has been created for automatic SSL certificate renewal on the first day of each month."
