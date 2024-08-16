@@ -135,5 +135,7 @@ List of all time zones:
 timedatectl list-timezones
 ```
 Find your time zone and apply to sudo timedatectl set-timezone "time zone"
+
+
 ---
 
