@@ -80,7 +80,7 @@ Admins can:
 
 ---
 
-## 🔷 Installation on Ubuntu 22.04
+# 🔷 Installation on Ubuntu 22.04
 
 To install BackupWatch on Ubuntu 22.04, follow these steps:
 
