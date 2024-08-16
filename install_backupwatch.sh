@@ -61,7 +61,8 @@ echo "y" | sudo DEBIAN_FRONTEND=noninteractive ufw enable
 # 10. Open port 8000 in the firewall
 echo "Opening port 8000 in the firewall..."
 sudo ufw allow 8000
-sudo ufw reload
+sudo ufw allow 22
+
 
 # 11. Create a systemd service file
 echo "Creating systemd service file..."
@@ -86,4 +87,6 @@ sudo systemctl daemon-reload
 sudo systemctl enable backupwatch.service
 sudo systemctl start backupwatch.service
 
+
+sudo ufw reload
 echo "Installation and configuration are complete."
