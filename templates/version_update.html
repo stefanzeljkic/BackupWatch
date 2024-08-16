@@ -65,9 +65,9 @@
         <button class="back-button" onclick="location.href='/admin'">Back</button>
         <h1>Version - Update</h1>
         <p>Current version: <strong>{{ current_version }}</strong></p>
-        <form method="POST" action="/admin_task?task=verzija_update">
-            <button type="submit">Check for a new version and update</button>
-        </form>
+        <a href="https://github.com/stefanzeljkic/BackupWatch/" target="_blank">
+            <button>Check for a new version and update</button>
+        </a>
         {% if message %}
             <div class="message {{ message_type }}">{{ message }}</div>
         {% endif %}
