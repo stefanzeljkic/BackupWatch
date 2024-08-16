@@ -32,6 +32,18 @@ if errorlevel 1 (
     echo Git installation verified successfully.
 )
 
+REM Check if BackupWatch directory already exists and remove it
+if exist "%TEMP%\BackupWatch" (
+    echo Removing existing BackupWatch directory...
+    rmdir /s /q "%TEMP%\BackupWatch"
+    if errorlevel 1 (
+        echo Failed to remove existing BackupWatch directory.
+        pause
+        exit /b
+    )
+    echo Existing BackupWatch directory removed successfully.
+)
+
 REM Clone GitHub repository
 echo Cloning BackupWatch repository...
 cd %TEMP%
