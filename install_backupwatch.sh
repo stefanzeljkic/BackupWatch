@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 1. Set the frontend to non-interactive to avoid prompts
+# 1. Set the frontend to non-interactive to avoid prompts for initial setup
 export DEBIAN_FRONTEND=noninteractive
 
 # 2. Preemptively answer 'no' to any service restarts or configuration prompts
@@ -85,7 +85,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable backupwatch.service
 sudo systemctl start backupwatch.service
 
-# Remove non-interactive setting
+# Remove non-interactive setting for the rest of the script
 unset DEBIAN_FRONTEND
 
 # Install Nginx and Certbot interactively
