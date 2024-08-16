@@ -70,12 +70,11 @@ fi
 # 9. Configure Nginx
 echo "Configuring Nginx..."
 
-# Remove old symbolic link if it exists
+# Remove old symbolic link and configuration file if they exist
 if [ -L /etc/nginx/sites-enabled/backupwatch ]; then
     sudo rm /etc/nginx/sites-enabled/backupwatch
 fi
 
-# Remove old configuration file if it exists
 if [ -f /etc/nginx/sites-available/backupwatch ]; then
     sudo rm /etc/nginx/sites-available/backupwatch
 fi
