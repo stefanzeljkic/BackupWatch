@@ -103,18 +103,20 @@ curl -s https://raw.githubusercontent.com/stefanzeljkic/BackupWatch/main/install
 
 After installation, you may need to start the application manually:
 
-\`\`\`bash
+```
 python3 /opt/BackupWatch/app.py
-\`\`\`
+```
 
 ### Additional Commands:
 
 Restart the BackupWatch service and check its status with:
 
-\`\`\`bash
+```
 sudo systemctl restart backupwatch.service
+```
+```
 sudo systemctl status backupwatch.service
-\`\`\`
+```
 
 ---
 
