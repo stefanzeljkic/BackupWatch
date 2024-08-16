@@ -60,7 +60,7 @@ echo "y" | sudo DEBIAN_FRONTEND=noninteractive ufw enable
 
 # 10. Open port 8000 in the firewall
 echo "Opening port 8000 in the firewall..."
-sudo ufw allow 8000
+sudo ufw allow 5000
 sudo ufw allow 22
 
 
