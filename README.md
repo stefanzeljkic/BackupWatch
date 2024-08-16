@@ -1,69 +1,87 @@
+# BackupWatch Documentation
 
-BackupWatch Documentation
-Introduction
+## Introduction
 
-BackupWatch is a web-based application designed to monitor the status of backups through emails. The application checks incoming emails for specific keywords that indicate the success or failure of a backup operation. Based on the keywords found, BackupWatch updates the status of each backup, helping administrators easily identify which backups have succeeded or failed.
-License and Open-Source Nature
+**BackupWatch** is a web-based application designed to monitor the status of backups through emails. The application checks incoming emails for specific keywords that indicate the success or failure of a backup operation. Based on the keywords found, BackupWatch updates the status of each backup, helping administrators easily identify which backups have succeeded or failed.
 
-BackupWatch is an open-source project licensed under the Apache-2.0 license. This means that you are free to use, modify, and distribute the software under the terms of the license. As an open-source project, BackupWatch encourages community contributions and collaboration. You can review the source code, suggest improvements, and contribute to the project on its public repository.
+---
 
-The open-source nature of BackupWatch ensures that it remains transparent, secure, and customizable according to your needs. By using an open-source license, the application promotes innovation and trust among its users, who can inspect and improve the codebase as necessary.
-Features
+## License and Open-Source Nature
 
-BackupWatch offers a range of features to help you monitor and manage your backups effectively:
+BackupWatch is an open-source project licensed under the **Apache-2.0 license**. You are free to use, modify, and distribute the software under the terms of this license.
 
-    Backup Monitoring: Automatically checks emails for backup success or failure based on user-defined keywords.
-    Real-time Status Updates: Displays the current status of backups with color-coded indicators.
-    Automatic Refresh: Periodically refreshes the status of backups based on a configurable interval.
-    Account Management: Allows administrators to manage user accounts, including adding, updating, and deleting users.
-    Customizable Configuration: Adjust settings such as email server details, port number, and refresh intervals through a user-friendly interface.
-    Version Updates: Check for and install new versions of the application with ease.
-    License Information: Access detailed license information for BackupWatch.
-    Dark and Light Mode: Toggle between dark and light themes based on user preference.
+### Key Points:
+- **Transparency**: Open-source nature ensures transparency and security.
+- **Collaboration**: Encourages community contributions and collaboration.
+- **Customizability**: Fully customizable according to your needs.
 
-User Roles and Permissions
+---
 
-BackupWatch supports multiple user roles, each with different levels of access and capabilities. Understanding these roles is essential for managing the application effectively:
-Admin
+## Features
 
-The Admin role has the highest level of access within BackupWatch. Admins can perform the following tasks:
+BackupWatch offers a comprehensive set of features to monitor and manage backups effectively:
 
-    Manage Users: Create, update, and delete user accounts.
-    Configure Email Settings: Modify email server settings, including IMAP and SMTP configurations.
-    Manage Backups: Add, edit, and delete backups. Admins can also move backup status squares on the dashboard.
-    Access Administration Panel: Access features such as version updates, changing the port, and configuring automatic refresh intervals.
-    View and Update License Information: Access and manage the software license.
+- **Backup Monitoring**: Automatically checks emails for backup success or failure based on user-defined keywords.
+- **Real-time Status Updates**: Displays current backup status with color-coded indicators.
+- **Automatic Refresh**: Periodically refreshes backup status based on a configurable interval.
+- **Account Management**: Allows administrators to manage user accounts.
+- **Customizable Configuration**: Adjust settings such as email server details, port number, and refresh intervals.
+- **Version Updates**: Check for and install new application versions easily.
+- **Dark and Light Mode**: Toggle between dark and light themes.
 
-Moderator
+---
 
-Moderators have a slightly restricted set of permissions compared to Admins. They can perform the following tasks:
+## User Roles
 
-    Manage Backups: Add, edit, and delete backups, similar to Admins.
-    Move Backup Status Squares: Adjust the position of backup status squares on the dashboard.
-    View Account Configuration: Moderators can view and update their account details but cannot manage other user accounts.
+BackupWatch categorizes users into three roles: **Admin**, **Moderator**, and **Guest**. Each role has different permissions and access levels.
 
-Guest
+### Admin
+Admins have full access to all features, including:
+- **Manage Backups**: Add, edit, and delete backups.
+- **Manage Accounts**: Add, edit, and delete user accounts.
+- **Configure Email Server**: Update email server settings and port numbers.
+- **Install Updates**: Access and manage software updates and licenses.
 
-The Guest role has the most limited access within BackupWatch. Guests can only view the status of backups without the ability to make changes. Specifically, Guests can:
+### Moderator
+Moderators have slightly restricted permissions:
+- **Manage Backups**: Similar to Admins, but without user account management.
+- **Move Backup Status Squares**: Adjust the position of backup status indicators.
+- **View Account Configuration**: Can update their own account details.
 
-    View Backup Status: See the current status of all backups on the dashboard.
-    Account Configuration: Guests can view and update their account details but have no access to manage backups or other settings.
+### Guest
+Guests have the most limited access:
+- **View Backup Status**: Only view current backup statuses.
+- **Account Configuration**: Update their own account details but no access to manage backups.
 
-Getting Started
+---
 
-To start using BackupWatch, log in with your credentials. If you are an administrator, you will have access to additional features such as user management, mail configuration, and version updates.
-Managing Backups
+## Getting Started
 
-To add a new backup, navigate to the "Add New" section and fill out the required details, including the backup name, email address, email subject, and the keywords to identify success and failure. Once added, BackupWatch will begin monitoring emails and updating the status accordingly.
-Understanding Status Indicators
+To start using BackupWatch:
+1. **Log In**: Use your credentials.
+2. **Admin Access**: Admins can manage user accounts, mail configuration, and version updates.
+3. **Add Backups**: Go to "Add New" to create a new backup entry.
+
+---
+
+## Understanding Status Indicators
 
 BackupWatch uses color-coded squares to indicate the status of each backup:
 
-    Green: Backup completed successfully.
-    Yellow: Backup is delayed by one interval.
-    Purple: Backup is delayed by two intervals.
-    Red: Backup failed or encountered an error.
+- 🟢 **Green**: Backup completed successfully.
+- 🟡 **Yellow**: Backup is delayed by one interval.
+- 🟣 **Purple**: Backup is delayed by two intervals.
+- 🔴 **Red**: Backup failed or encountered an error.
 
-Additional Features
+---
 
-As an administrator, you can configure the email server settings, change the port number, and manage user accounts through the "Administration" section. Additionally, you can check for new versions of BackupWatch and install updates to keep the application up-to-date with the latest features and security patches.
+## Additional Features
+
+Admins can:
+- **Configure Email Server Settings**
+- **Change Port Number**
+- **Manage User Accounts**
+- **Check for Updates**: Ensure the application is up-to-date with the latest features and security patches.
+
+---
+
