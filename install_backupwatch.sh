@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Prompt for domain and email before setting non-interactive mode
+read -p "Enter your domain name (e.g., example.com): " domain_name
+read -p "Enter your email address for SSL certificate: " email_address
+
 # 1. Set the frontend to non-interactive to avoid prompts for initial setup
 export DEBIAN_FRONTEND=noninteractive
 
@@ -91,10 +95,6 @@ unset DEBIAN_FRONTEND
 # Install Nginx and Certbot interactively
 sudo apt-get install -y nginx software-properties-common
 sudo apt-get install -y certbot python3-certbot-nginx
-
-# Prompt for domain and email
-read -p "Enter your domain name (e.g., example.com): " domain_name
-read -p "Enter your email address for SSL certificate: " email_address
 
 # Configure Nginx as a reverse proxy
 sudo bash -c "cat > /etc/nginx/sites-available/$domain_name <<EOF
