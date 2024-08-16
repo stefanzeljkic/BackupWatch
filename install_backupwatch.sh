@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Prvo ćemo tražiti unos domena i emaila
-read -p "Unesite domen (npr. example.com): " DOMAIN
+read -p "Unesite domen (npr. example.com): " DOMAIN < /dev/tty
 if [ -z "$DOMAIN" ]; then
     echo "Domen ne može biti prazan. Molimo unesite validan domen."
     exit 1
 fi
 
-read -p "Unesite email za Let's Encrypt: " EMAIL
+read -p "Unesite email za Let's Encrypt: " EMAIL < /dev/tty
 if [ -z "$EMAIL" ]; then
     echo "Email ne može biti prazan. Molimo unesite validan email."
     exit 1
