@@ -3,9 +3,22 @@
 REM Check if Git is installed
 git --version >nul 2>&1
 if errorlevel 1 (
-    echo Git is not installed. Please install Git from https://git-scm.com/download/win.
-    pause
-    exit /b
+    echo Git is not installed. Installing Git...
+
+    REM Download Git installer
+    powershell -command "Invoke-WebRequest -Uri https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.1/Git-2.42.0-64-bit.exe -OutFile git-installer.exe"
+
+    REM Install Git silently
+    start /wait git-installer.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+
+    REM Verify Git installation
+    git --version >nul 2>&1
+    if errorlevel 1 (
+        echo Git installation failed. Please install Git manually.
+        pause
+        exit /b
+    )
+    echo Git installed successfully.
 )
 
 REM Clone GitHub repository
