@@ -32,18 +32,6 @@ if errorlevel 1 (
     echo Git installation verified successfully.
 )
 
-REM Check if BackupWatch directory already exists and remove it
-if exist "%TEMP%\BackupWatch" (
-    echo Removing existing BackupWatch directory...
-    rmdir /s /q "%TEMP%\BackupWatch"
-    if errorlevel 1 (
-        echo Failed to remove existing BackupWatch directory.
-        pause
-        exit /b
-    )
-    echo Existing BackupWatch directory removed successfully.
-)
-
 REM Clone GitHub repository
 echo Cloning BackupWatch repository...
 cd %TEMP%
@@ -54,8 +42,6 @@ if errorlevel 1 (
     exit /b
 )
 echo BackupWatch repository cloned successfully.
-
-REM Continue with the rest of the script...
 
 REM Create directory and move files
 echo Setting up BackupWatch in Program Files...
@@ -70,4 +56,73 @@ if errorlevel 1 (
 )
 echo BackupWatch files moved successfully.
 
-REM Continue with Python installation and other setup steps...
+REM Install required Python packages
+echo Installing Python packages...
+cd "C:\Program Files\BackupWatch"
+pip install -r requirements.txt
+if errorlevel 1 (
+    echo Failed to install Python packages.
+    pause
+    exit /b
+)
+echo Python packages installed successfully.
+
+REM Open port 8000
+echo Opening port 8000...
+netsh advfirewall firewall add rule name="Open Port 8000" dir=in action=allow protocol=TCP localport=8000
+if errorlevel 1 (
+    echo Failed to open port 8000.
+    pause
+    exit /b
+)
+echo Port 8000 opened successfully.
+
+REM Install and configure NSSM to run app.py as a service
+echo Setting up NSSM for BackupWatch...
+cd %TEMP%
+powershell -command "Invoke-WebRequest -Uri https://nssm.cc/release/nssm-2.24.zip -OutFile nssm.zip"
+powershell -command "Expand-Archive -Path nssm.zip -DestinationPath . -Force"
+move nssm-2.24\win64\nssm.exe "C:\Windows\System32\"
+if errorlevel 1 (
+    echo Failed to set up NSSM.
+    pause
+    exit /b
+)
+echo NSSM set up successfully.
+
+REM Check if BackupWatch service exists and remove it
+nssm status BackupWatch >nul 2>&1
+if not errorlevel 1 (
+    echo BackupWatch service already exists. Removing existing service...
+    nssm remove BackupWatch confirm
+    if errorlevel 1 (
+        echo Failed to remove existing BackupWatch service.
+        pause
+        exit /b
+    )
+    echo Existing BackupWatch service removed successfully.
+)
+
+REM Set up the service
+echo Installing BackupWatch as a service...
+nssm install BackupWatch "python.exe" "C:\Program Files\BackupWatch\app.py"
+nssm set BackupWatch Start SERVICE_AUTO_START
+if errorlevel 1 (
+    echo Failed to install BackupWatch as a service.
+    pause
+    exit /b
+)
+echo BackupWatch service installed successfully.
+
+REM Start the service
+echo Starting BackupWatch service...
+nssm start BackupWatch
+if errorlevel 1 (
+    echo Failed to start BackupWatch service.
+    pause
+    exit /b
+)
+echo BackupWatch service started successfully.
+
+echo Installation complete. BackupWatch should now be running as a service.
+pause
