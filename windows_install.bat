@@ -89,15 +89,15 @@ if errorlevel 1 (
 )
 echo Requests package installed successfully.
 
-REM Open port 8000
-echo Opening port 8000...
-netsh advfirewall firewall add rule name="Open Port 8000" dir=in action=allow protocol=TCP localport=8000
+REM Open port 5000
+echo Opening port 5000...
+netsh advfirewall firewall add rule name="Open Port 5000" dir=in action=allow protocol=TCP localport=5000
 if errorlevel 1 (
-    echo Failed to open port 8000.
+    echo Failed to open port 5000.
     pause
     exit /b
 )
-echo Port 8000 opened successfully.
+echo Port 5000 opened successfully.
 
 REM Install and configure NSSM to run app.py as a service
 echo Setting up NSSM for BackupWatch...
