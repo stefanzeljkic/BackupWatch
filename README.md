@@ -121,6 +121,12 @@ sudo systemctl restart backupwatch.service
 ```
 sudo systemctl status backupwatch.service
 ```
+If you need to run application manualy:
+
+```
+python3 /opt/BackupWatch/app.py
+```
+
 
 ---
 
