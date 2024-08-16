@@ -1,5 +1,5 @@
 
-# BackupWatch Documentation
+## BackupWatch Documentation
 ---
 ## Introduction
 
