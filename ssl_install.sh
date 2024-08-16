@@ -38,95 +38,48 @@ sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
 
 # Attempt to obtain an SSL certificate via HTTP-01 challenge using certonly
-if sudo certbot certonly --non-interactive --agree-tos --webroot -w /var/www/html -d "$DOMAIN" -m "$EMAIL"; then
-    echo "SSL certificate successfully obtained via HTTP-01 challenge."
-
-    # Configure Apache to use the obtained SSL certificate
-    APACHE_CONF="/etc/apache2/sites-available/$DOMAIN.conf"
-
-    echo "<VirtualHost *:80>
-    ServerName $DOMAIN
-    ProxyPreserveHost On
-    ProxyPass / http://localhost:8000/
-    ProxyPassReverse / http://localhost:8000/
-</VirtualHost>
-
-<VirtualHost *:443>
-    SSLEngine on
-    ServerName $DOMAIN
-
-    Header always set Strict-Transport-Security \"max-age=31536000; includeSubDomains\"
-    SSLCertificateFile /etc/letsencrypt/live/$DOMAIN/fullchain.pem
-    SSLCertificateKeyFile /etc/letsencrypt/live/$DOMAIN/privkey.pem
-    SSLCertificateChainFile /etc/letsencrypt/live/$DOMAIN/chain.pem
-
-    ProxyPreserveHost On
-    ProxyPass / http://localhost:8000/
-    ProxyPassReverse / http://localhost:8000/
-</VirtualHost>" | sudo tee "$APACHE_CONF"
-
-    # Enable the new virtual host
-    sudo a2ensite "$DOMAIN.conf"
-
-    # Restart Apache to apply the changes
-    sudo systemctl restart apache2
-else
+if ! sudo certbot certonly --non-interactive --agree-tos --webroot -w /opt/BackupWatch/static/ -d "$DOMAIN" -m "$EMAIL"; then
     echo "Failed to obtain SSL certificate via HTTP-01 challenge."
-    read -p "Would you like to try DNS-01 challenge instead? (yes/no): " choice
-    if [ "$choice" == "yes" ]; then
-        echo "You will need to manually create a DNS TXT record."
-        echo "Please add the following TXT record to your DNS settings:"
-        
-        # Execute the certbot command with --manual and DNS challenge
-        sudo certbot certonly --manual --preferred-challenges=dns -d "$DOMAIN" --agree-tos -m "$EMAIL" --manual-public-ip-logging-ok
-        
-        echo "Once you have added the TXT record, press Enter to continue..."
-        read -p ""
-        
-        echo "Please wait while we complete the DNS challenge..."
-        
-        # Check if the certificate was successfully obtained
-        if [ -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then
-            echo "SSL certificate successfully obtained via DNS-01 challenge."
-            
-            # Configure Apache to use the obtained SSL certificate
-            APACHE_CONF="/etc/apache2/sites-available/$DOMAIN.conf"
+    echo "Switching to DNS-01 challenge method."
 
-            echo "<VirtualHost *:80>
-    ServerName $DOMAIN
-    ProxyPreserveHost On
-    ProxyPass / http://localhost:8000/
-    ProxyPassReverse / http://localhost:8000/
-</VirtualHost>
-
-<VirtualHost *:443>
-    SSLEngine on
-    ServerName $DOMAIN
-
-    Header always set Strict-Transport-Security \"max-age=31536000; includeSubDomains\"
-    SSLCertificateFile /etc/letsencrypt/live/$DOMAIN/fullchain.pem
-    SSLCertificateKeyFile /etc/letsencrypt/live/$DOMAIN/privkey.pem
-    SSLCertificateChainFile /etc/letsencrypt/live/$DOMAIN/chain.pem
-
-    ProxyPreserveHost On
-    ProxyPass / http://localhost:8000/
-    ProxyPassReverse / http://localhost:8000/
-</VirtualHost>" | sudo tee "$APACHE_CONF"
-
-            # Enable the new virtual host
-            sudo a2ensite "$DOMAIN.conf"
-
-            # Restart Apache to apply the changes
-            sudo systemctl restart apache2
-        else
-            echo "Failed to obtain SSL certificate via DNS-01 challenge."
-            exit 1
-        fi
-    else
-        echo "Exiting without obtaining SSL certificate."
+    # Use DNS-01 challenge instead
+    sudo certbot certonly --manual --preferred-challenges=dns -d "$DOMAIN" --agree-tos -m "$EMAIL" --manual-public-ip-logging-ok
+    
+    if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then
+        echo "Failed to obtain SSL certificate via DNS-01 challenge."
         exit 1
     fi
 fi
+
+# Configure Apache to use the obtained SSL certificate
+APACHE_CONF="/etc/apache2/sites-available/$DOMAIN.conf"
+
+echo "<VirtualHost *:80>
+    ServerName $DOMAIN
+    ProxyPreserveHost On
+    ProxyPass / http://localhost:8000/
+    ProxyPassReverse / http://localhost:8000/
+</VirtualHost>
+
+<VirtualHost *:443>
+    SSLEngine on
+    ServerName $DOMAIN
+
+    Header always set Strict-Transport-Security \"max-age=31536000; includeSubDomains\"
+    SSLCertificateFile /etc/letsencrypt/live/$DOMAIN/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/$DOMAIN/privkey.pem
+    SSLCertificateChainFile /etc/letsencrypt/live/$DOMAIN/chain.pem
+
+    ProxyPreserveHost On
+    ProxyPass / http://localhost:8000/
+    ProxyPassReverse / http://localhost:8000/
+</VirtualHost>" | sudo tee "$APACHE_CONF"
+
+# Enable the new virtual host
+sudo a2ensite "$DOMAIN.conf"
+
+# Restart Apache to apply the changes
+sudo systemctl restart apache2
 
 # Create a cron job to renew SSL certificates every 30 days
 (crontab -l 2>/dev/null; echo "0 0 1 * * /usr/sbin/service apache2 stop && /usr/bin/certbot renew && /usr/sbin/service apache2 start") | crontab -
