@@ -119,6 +119,8 @@ If you need to run application manualy:
 ```
 python3 /opt/BackupWatch/app.py
 ```
+
+
 ### Time zones
 
 Application time is tied to the server's time zone
