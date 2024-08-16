@@ -40,9 +40,39 @@ sudo a2enmod headers
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
 
-# Attempt to obtain an SSL certificate via HTTP-01 challenge
-if sudo certbot --apache --non-interactive --agree-tos -d "$DOMAIN" -m "$EMAIL"; then
+# Attempt to obtain an SSL certificate via HTTP-01 challenge using certonly
+if sudo certbot certonly --non-interactive --agree-tos --webroot -w /var/www/html -d "$DOMAIN" -m "$EMAIL"; then
     echo "SSL certificate successfully obtained via HTTP-01 challenge."
+
+    # Configure Apache to use the obtained SSL certificate
+    APACHE_CONF="/etc/apache2/sites-available/$DOMAIN.conf"
+
+    echo "<VirtualHost *:80>
+    ServerName $DOMAIN
+    ProxyPreserveHost On
+    ProxyPass / http://localhost:8000/
+    ProxyPassReverse / http://localhost:8000/
+</VirtualHost>
+
+<VirtualHost *:443>
+    SSLEngine on
+    ServerName $DOMAIN
+
+    Header always set Strict-Transport-Security \"max-age=31536000; includeSubDomains\"
+    SSLCertificateFile /etc/letsencrypt/live/$DOMAIN/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/$DOMAIN/privkey.pem
+    SSLCertificateChainFile /etc/letsencrypt/live/$DOMAIN/chain.pem
+
+    ProxyPreserveHost On
+    ProxyPass / http://localhost:8000/
+    ProxyPassReverse / http://localhost:8000/
+</VirtualHost>" | sudo tee "$APACHE_CONF"
+
+    # Enable the new virtual host
+    sudo a2ensite "$DOMAIN.conf"
+
+    # Restart Apache to apply the changes
+    sudo systemctl restart apache2
 else
     echo "Failed to obtain SSL certificate via HTTP-01 challenge."
     read -p "Would you like to try DNS-01 challenge instead? (yes/no): " choice
@@ -77,7 +107,7 @@ else
     ServerName $DOMAIN
 
     Header always set Strict-Transport-Security \"max-age=31536000; includeSubDomains\"
-    SSLCertificateFile /etc/letsencrypt/live/$DOMAIN/cert.pem
+    SSLCertificateFile /etc/letsencrypt/live/$DOMAIN/fullchain.pem
     SSLCertificateKeyFile /etc/letsencrypt/live/$DOMAIN/privkey.pem
     SSLCertificateChainFile /etc/letsencrypt/live/$DOMAIN/chain.pem
 
