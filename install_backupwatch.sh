@@ -1,23 +1,10 @@
 #!/bin/bash
 
-# Prvo ćemo tražiti unos domena i emaila
-read -p "Unesite domen (npr. example.com): " DOMAIN < /dev/tty
-if [ -z "$DOMAIN" ]; then
-    echo "Domen ne može biti prazan. Molimo unesite validan domen."
-    exit 1
-fi
-
-read -p "Unesite email za Let's Encrypt: " EMAIL < /dev/tty
-if [ -z "$EMAIL" ]; then
-    echo "Email ne može biti prazan. Molimo unesite validan email."
-    exit 1
-fi
-
 # 1. Set the frontend to non-interactive to avoid prompts
 export DEBIAN_FRONTEND=noninteractive
 
 # 2. Preemptively answer 'no' to any service restarts or configuration prompts
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y git curl python3 python3-pip ufw nginx certbot python3-certbot-nginx
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y git curl python3 python3-pip ufw
 
 # 3. Configure dpkg if it was interrupted previously
 sudo dpkg --configure -a
@@ -67,62 +54,16 @@ if ! python3 -c "import dotenv" &> /dev/null; then
     exit 1
 fi
 
-# 9. Configure Nginx
-echo "Configuring Nginx..."
-
-# Remove old symbolic link and configuration file if they exist
-if [ -L /etc/nginx/sites-enabled/backupwatch ]; then
-    sudo rm -f /etc/nginx/sites-enabled/backupwatch
-fi
-
-if [ -f /etc/nginx/sites-available/backupwatch ]; then
-    sudo rm -f /etc/nginx/sites-available/backupwatch
-fi
-
-# Remove any faulty symbolic links in /etc/nginx/sites-enabled/
-sudo find /etc/nginx/sites-enabled/ -type l -exec rm -f {} \;
-
-# Create a new configuration file
-sudo bash -c "cat <<EOF > /etc/nginx/sites-available/backupwatch
-server {
-    listen 80;
-    server_name $DOMAIN;
-    location / {
-        proxy_pass http://localhost:8000;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-    }
-}
-EOF"
-
-# Create a new symbolic link
-sudo ln -s /etc/nginx/sites-available/backupwatch /etc/nginx/sites-enabled/backupwatch
-
-# Test Nginx configuration and restart service
-sudo nginx -t && sudo systemctl restart nginx
-
-# 10. Obtain Let's Encrypt SSL certificate
-echo "Obtaining SSL certificate..."
-sudo certbot --nginx --non-interactive --agree-tos --email "$EMAIL" -d "$DOMAIN"
-
-# 11. Set up auto-renewal for the certificate
-echo "Setting up certificate auto-renewal..."
-sudo bash -c 'echo "0 0,12 * * * root certbot renew --quiet" > /etc/cron.d/certbot_renewal'
-sudo systemctl reload nginx
-
-# 12. Enable UFW (firewall) non-interactively
+# 9. Enable UFW (firewall) non-interactively
 echo "Enabling UFW (firewall)..."
 echo "y" | sudo DEBIAN_FRONTEND=noninteractive ufw enable
 
-# 13. Open port 443 and 80 in the firewall
-echo "Opening ports 443 and 80 in the firewall..."
-sudo ufw allow 443
-sudo ufw allow 80
+# 10. Open port 8000 in the firewall
+echo "Opening port 8000 in the firewall..."
+sudo ufw allow 8000
 sudo ufw reload
 
-# 14. Create a systemd service file for BackupWatch
+# 11. Create a systemd service file
 echo "Creating systemd service file..."
 sudo bash -c 'cat <<EOF > /etc/systemd/system/backupwatch.service
 [Unit]
@@ -139,7 +80,7 @@ Restart=always
 WantedBy=multi-user.target
 EOF'
 
-# 15. Reload systemd, enable and start the service
+# 12. Reload systemd, enable and start the service
 echo "Reloading systemd, enabling and starting the BackupWatch service..."
 sudo systemctl daemon-reload
 sudo systemctl enable backupwatch.service
