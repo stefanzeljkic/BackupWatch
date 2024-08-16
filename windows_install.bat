@@ -1,18 +1,35 @@
 @echo off
 
-REM Download GitHub repository
+REM Check if Git is installed
+git --version >nul 2>&1
+if errorlevel 1 (
+    echo Git is not installed. Please install Git from https://git-scm.com/download/win.
+    pause
+    exit /b
+)
+
+REM Clone GitHub repository
 cd %TEMP%
 git clone https://github.com/stefanzeljkic/BackupWatch.git
 
 REM Create directory and move files
-mkdir "C:\Program Files\BackupWatch"
-move BackupWatch "C:\Program Files\BackupWatch"
+if not exist "C:\Program Files\BackupWatch" (
+    mkdir "C:\Program Files\BackupWatch"
+)
+xcopy /E /I BackupWatch "C:\Program Files\BackupWatch"
 
-REM Install Python if not installed
-if not exist "C:\Python39\python.exe" (
-    echo Installing Python...
+REM Check if Python is installed
+python --version >nul 2>&1
+if errorlevel 1 (
+    echo Python is not installed. Installing Python...
     powershell -command "Invoke-WebRequest -Uri https://www.python.org/ftp/python/3.9.7/python-3.9.7-amd64.exe -OutFile python-installer.exe"
     start /wait python-installer.exe /quiet InstallAllUsers=1 PrependPath=1
+    python --version >nul 2>&1
+    if errorlevel 1 (
+        echo Python installation failed. Please install Python manually.
+        pause
+        exit /b
+    )
 )
 
 REM Install required Python packages
@@ -29,7 +46,7 @@ powershell -command "Expand-Archive -Path nssm.zip -DestinationPath ."
 move nssm-2.24\win64\nssm.exe "C:\Windows\System32\"
 
 REM Set up the service
-nssm install BackupWatch "C:\Python39\python.exe" "C:\Program Files\BackupWatch\app.py"
+nssm install BackupWatch "python.exe" "C:\Program Files\BackupWatch\app.py"
 nssm set BackupWatch Start SERVICE_AUTO_START
 
 REM Start the service
