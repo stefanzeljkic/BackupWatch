@@ -5,7 +5,6 @@
 
 **BackupWatch** is a web-based application designed to monitor the status of backups through emails. The application checks incoming emails for specific keywords that indicate the success or failure of a backup operation. Based on the keywords found, BackupWatch updates the status of each backup, helping administrators easily identify which backups have succeeded or failed.
 
----
 
 ## License and Open-Source Nature
 
@@ -16,7 +15,6 @@ BackupWatch is an open-source project licensed under the **Apache-2.0 license**.
 - **Collaboration**: Encourages community contributions and collaboration.
 - **Customizability**: Fully customizable according to your needs.
 
----
 
 ## Features
 
@@ -30,7 +28,6 @@ BackupWatch offers a comprehensive set of features to monitor and manage backups
 - **Version Updates**: Check for and install new application versions easily.
 - **Dark and Light Mode**: Toggle between dark and light themes.
 
----
 
 ## User Roles
 
@@ -54,7 +51,6 @@ Guests have the most limited access:
 - **View Backup Status**: Only view current backup statuses.
 - **Account Configuration**: Update their own account details but no access to manage backups.
 
----
 
 ## Getting Started
 
@@ -63,7 +59,6 @@ To start using BackupWatch:
 2. **Admin Access**: Admins can manage user accounts, mail configuration, and version updates.
 3. **Add Backups**: Go to "Add New" to create a new backup entry.
 
----
 
 ## Understanding Status Indicators
 
@@ -108,7 +103,6 @@ After the installation, the application will be available at `http://<your-ip-ad
 
 Make sure to change these credentials after the first login to ensure the security of your BackupWatch instance.
 
----
 
 ### Additional Commands (for Troubleshooting):
 
