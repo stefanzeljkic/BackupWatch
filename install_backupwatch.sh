@@ -85,7 +85,54 @@ sudo systemctl daemon-reload
 sudo systemctl enable backupwatch.service
 sudo systemctl start backupwatch.service
 
-# 13. Reload UFW at the end to avoid SSH disruption
+# Remove non-interactive setting
+unset DEBIAN_FRONTEND
+
+# Install Nginx and Certbot interactively
+sudo apt-get install -y nginx software-properties-common
+sudo apt-get install -y certbot python3-certbot-nginx
+
+# Prompt for domain and email
+read -p "Enter your domain name (e.g., example.com): " domain_name
+read -p "Enter your email address for SSL certificate: " email_address
+
+# Configure Nginx as a reverse proxy
+sudo bash -c "cat > /etc/nginx/sites-available/$domain_name <<EOF
+server {
+    listen 80;
+    server_name $domain_name www.$domain_name;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+
+    location /.well-known/acme-challenge/ {
+        allow all;
+    }
+
+    return 301 https://\$host\$request_uri;
+}
+EOF"
+
+# Enable the new Nginx configuration
+sudo ln -s /etc/nginx/sites-available/$domain_name /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl restart nginx
+
+# Obtain SSL certificate
+sudo certbot --nginx -d $domain_name -d www.$domain_name --email $email_address --agree-tos --redirect
+
+# Set up auto-renewal for SSL certificate
+sudo bash -c "cat > /etc/cron.d/certbot-renew <<EOF
+0 0 1 */2 * root certbot renew --quiet --post-hook 'systemctl reload nginx'
+EOF"
+
+sudo chmod 0644 /etc/cron.d/certbot-renew
+
+# Reload UFW at the end to avoid SSH disruption
 echo "Reloading UFW (firewall)..."
 sudo ufw reload
 
