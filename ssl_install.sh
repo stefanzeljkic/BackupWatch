@@ -22,8 +22,8 @@ fi
 # Ažuriranje paketa
 sudo apt update
 
-# Instalacija Apache
-sudo apt install -y apache2
+# Instalacija Apache, Certbot i Python modula, bez interaktivnih pitanja
+sudo DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confnew" install apache2 certbot python3-certbot-apache
 
 # Provera statusa Apache-a
 sudo systemctl status apache2
@@ -39,9 +39,6 @@ sudo a2enmod headers
 # Otvaranje portova 80 i 443
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
-
-# Instalacija Certbot-a za Let's Encrypt
-sudo apt install -y certbot python3-certbot-apache
 
 # Nabavka SSL sertifikata preko Let's Encrypt-a
 sudo certbot --apache --non-interactive --agree-tos -d "$DOMAIN" -m "$EMAIL"
