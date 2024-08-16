@@ -1,13 +1,17 @@
 #!/bin/bash
 
-# Proverite da li su argumenti prosleđeni
-if [ $# -ne 2 ]; then
-    echo "Usage: $0 <domen> <email>"
+# Prvo ćemo tražiti unos domena i emaila
+read -p "Unesite domen (npr. example.com): " DOMAIN
+if [ -z "$DOMAIN" ]; then
+    echo "Domen ne može biti prazan. Molimo unesite validan domen."
     exit 1
 fi
 
-DOMAIN=$1
-EMAIL=$2
+read -p "Unesite email za Let's Encrypt: " EMAIL
+if [ -z "$EMAIL" ]; then
+    echo "Email ne može biti prazan. Molimo unesite validan email."
+    exit 1
+fi
 
 # 1. Set the frontend to non-interactive to avoid prompts
 export DEBIAN_FRONTEND=noninteractive
