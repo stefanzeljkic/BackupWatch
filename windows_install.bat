@@ -5,11 +5,11 @@ git --version >nul 2>&1
 if errorlevel 1 (
     echo Git is not installed. Installing Git...
 
-    REM Download Git installer
-    powershell -command "Invoke-WebRequest -Uri https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.1/Git-2.42.0-64-bit.exe -OutFile git-installer.exe"
+    REM Download Git installer using bitsadmin
+    bitsadmin /transfer "GitDownloadJob" https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.1/Git-2.42.0-64-bit.exe "%TEMP%\git-installer.exe"
 
     REM Install Git silently
-    start /wait git-installer.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+    start /wait %TEMP%\git-installer.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
 
     REM Verify Git installation
     git --version >nul 2>&1
@@ -35,8 +35,8 @@ REM Check if Python is installed
 python --version >nul 2>&1
 if errorlevel 1 (
     echo Python is not installed. Installing Python...
-    powershell -command "Invoke-WebRequest -Uri https://www.python.org/ftp/python/3.9.7/python-3.9.7-amd64.exe -OutFile python-installer.exe"
-    start /wait python-installer.exe /quiet InstallAllUsers=1 PrependPath=1
+    bitsadmin /transfer "PythonDownloadJob" https://www.python.org/ftp/python/3.9.7/python-3.9.7-amd64.exe "%TEMP%\python-installer.exe"
+    start /wait %TEMP%\python-installer.exe /quiet InstallAllUsers=1 PrependPath=1
     python --version >nul 2>&1
     if errorlevel 1 (
         echo Python installation failed. Please install Python manually.
@@ -54,9 +54,9 @@ netsh advfirewall firewall add rule name="Open Port 8000" dir=in action=allow pr
 
 REM Install and configure NSSM to run app.py as a service
 cd %TEMP%
-powershell -command "Invoke-WebRequest -Uri https://nssm.cc/release/nssm-2.24.zip -OutFile nssm.zip"
-powershell -command "Expand-Archive -Path nssm.zip -DestinationPath ."
-move nssm-2.24\win64\nssm.exe "C:\Windows\System32\"
+bitsadmin /transfer "NSSMDownloadJob" https://nssm.cc/release/nssm-2.24.zip "%TEMP%\nssm.zip"
+powershell -command "Expand-Archive -Path %TEMP%\nssm.zip -DestinationPath %TEMP%\nssm"
+move %TEMP%\nssm\win64\nssm.exe "C:\Windows\System32\"
 
 REM Set up the service
 nssm install BackupWatch "python.exe" "C:\Program Files\BackupWatch\app.py"
