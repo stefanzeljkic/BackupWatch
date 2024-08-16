@@ -11,6 +11,9 @@ if errorlevel 1 (
     REM Use Chocolatey to install Git
     choco install git -y
 
+    REM Refresh environment variables
+    refreshenv
+
     REM Verify Git installation
     git --version >nul 2>&1
     if errorlevel 1 (
@@ -36,6 +39,7 @@ python --version >nul 2>&1
 if errorlevel 1 (
     echo Python is not installed. Installing Python...
     choco install python -y
+    refreshenv
     python --version >nul 2>&1
     if errorlevel 1 (
         echo Python installation failed. Please install Python manually.
