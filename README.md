@@ -94,7 +94,7 @@ sudo apt-get upgrade -y
 curl -s https://raw.githubusercontent.com/stefanzeljkic/BackupWatch/main/install_backupwatch.sh | bash
 ```
 
-After the installation, the application will be available at `http://<your-ip-address>:8000`.
+After the installation, the application will be available at `http://<your-ip-address>:5000`.
 
 ### Default Admin Credentials
 
