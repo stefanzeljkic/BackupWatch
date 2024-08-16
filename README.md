@@ -1,6 +1,8 @@
 
 # BackupWatch Documentation
 
+<hr style="border: 1px solid red;">
+
 ## Introduction
 
 **BackupWatch** is a web-based application designed to monitor the status of backups through emails. The application checks incoming emails for specific keywords that indicate the success or failure of a backup operation. Based on the keywords found, BackupWatch updates the status of each backup, helping administrators easily identify which backups have succeeded or failed.
