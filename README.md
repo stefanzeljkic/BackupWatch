@@ -90,7 +90,6 @@ Admins can:
 
 To install BackupWatch on Ubuntu 22.04, follow these steps:
 
-
 ```
 sudo apt-get update
 ```
@@ -101,15 +100,20 @@ sudo apt-get upgrade -y
 curl -s https://raw.githubusercontent.com/stefanzeljkic/BackupWatch/main/install_backupwatch.sh | bash
 ```
 
-After installation, you may need to start the application manually:
+After the installation, the application will be available at `http://<your-ip-address>:8000`.
 
-```
-python3 /opt/BackupWatch/app.py
-```
+### Default Admin Credentials
 
-### Additional Commands:
+- **Username**: `admin`
+- **Password**: `admin`
 
-Restart the BackupWatch service and check its status with:
+Make sure to change these credentials after the first login to ensure the security of your BackupWatch instance.
+
+---
+
+### Additional Commands (for Troubleshooting):
+
+If needed, you can restart the BackupWatch service and check its status with the following commands:
 
 ```
 sudo systemctl restart backupwatch.service
@@ -120,13 +124,3 @@ sudo systemctl status backupwatch.service
 
 ---
 
-## Default Admin Credentials
-
-After installation, you can log in with the following default credentials:
-
-- **Username**: \`admin\`
-- **Password**: \`admin\`
-
-Make sure to change these credentials after the first login to ensure the security of your BackupWatch instance.
-
----
