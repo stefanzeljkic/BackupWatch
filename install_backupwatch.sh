@@ -72,12 +72,15 @@ echo "Configuring Nginx..."
 
 # Remove old symbolic link and configuration file if they exist
 if [ -L /etc/nginx/sites-enabled/backupwatch ]; then
-    sudo rm /etc/nginx/sites-enabled/backupwatch
+    sudo rm -f /etc/nginx/sites-enabled/backupwatch
 fi
 
 if [ -f /etc/nginx/sites-available/backupwatch ]; then
-    sudo rm /etc/nginx/sites-available/backupwatch
+    sudo rm -f /etc/nginx/sites-available/backupwatch
 fi
+
+# Remove any faulty symbolic links in /etc/nginx/sites-enabled/
+sudo find /etc/nginx/sites-enabled/ -type l -exec rm -f {} \;
 
 # Create a new configuration file
 sudo bash -c "cat <<EOF > /etc/nginx/sites-available/backupwatch
