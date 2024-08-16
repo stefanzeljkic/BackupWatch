@@ -43,28 +43,28 @@ sudo ufw allow 443/tcp
 # Nabavka SSL sertifikata preko Let's Encrypt-a
 sudo certbot --apache --non-interactive --agree-tos -d "$DOMAIN" -m "$EMAIL"
 
-# Kreiranje Apache virtual host-a za preusmeravanje saobraćaja na aplikaciju koja radi na portu 8000
+# Kreiranje Apache virtual host-a za preusmeravanje saobraćaja na aplikaciju koja radi na localhost:8000
 APACHE_CONF="/etc/apache2/sites-available/$DOMAIN.conf"
 
 echo "<VirtualHost *:80>
     ServerName $DOMAIN
-    Redirect permanent / https://$DOMAIN/
+    ProxyPreserveHost On
+    ProxyPass / http://localhost:8000/
+    ProxyPassReverse / http://localhost:8000/
 </VirtualHost>
 
 <VirtualHost *:443>
+    SSLEngine on
     ServerName $DOMAIN
 
-    SSLEngine on
-    SSLCertificateFile /etc/letsencrypt/live/$DOMAIN/fullchain.pem
+    Header always set Strict-Transport-Security \"max-age=31536000; includeSubDomains\"
+    SSLCertificateFile /etc/letsencrypt/live/$DOMAIN/cert.pem
     SSLCertificateKeyFile /etc/letsencrypt/live/$DOMAIN/privkey.pem
-    Include /etc/letsencrypt/options-ssl-apache.conf
+    SSLCertificateChainFile /etc/letsencrypt/live/$DOMAIN/chain.pem
 
     ProxyPreserveHost On
-    ProxyPass / http://127.0.0.1:8000/
-    ProxyPassReverse / http://127.0.0.1:8000/
-
-    ErrorLog \${APACHE_LOG_DIR}/error.log
-    CustomLog \${APACHE_LOG_DIR}/access.log combined
+    ProxyPass / http://localhost:8000/
+    ProxyPassReverse / http://localhost:8000/
 </VirtualHost>" | sudo tee "$APACHE_CONF"
 
 # Omogućavanje novog virtual host-a
@@ -73,4 +73,8 @@ sudo a2ensite "$DOMAIN.conf"
 # Restartovanje Apache-a da bi se primenile promene
 sudo systemctl restart apache2
 
+# Kreiranje cron zadatka za obnovu SSL sertifikata na svakih 30 dana
+(crontab -l 2>/dev/null; echo "0 0 1 * * /usr/sbin/service apache2 stop && /usr/bin/certbot renew && /usr/sbin/service apache2 start") | crontab -
+
 echo "Instalacija i konfiguracija je završena. Vaša aplikacija bi sada trebala biti dostupna na https://$DOMAIN"
+echo "Kreiran je cron zadatak za automatsku obnovu SSL sertifikata svakog prvog dana u mesecu."
