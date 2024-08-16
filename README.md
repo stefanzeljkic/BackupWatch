@@ -90,12 +90,13 @@ Admins can:
 
 To install BackupWatch on Ubuntu 22.04, follow these steps:
 
-\`\`\`bash
-sudo apt-get update
-sudo apt-get upgrade -y
+
+- **sudo apt-get update
+--
+- **sudo apt-get upgrade -y
 
 curl -s https://raw.githubusercontent.com/stefanzeljkic/BackupWatch/main/install_backupwatch.sh | bash
-\`\`\`
+
 
 After installation, you may need to start the application manually:
 
