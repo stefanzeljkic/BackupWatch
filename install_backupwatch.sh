@@ -2,7 +2,10 @@
 
 # Prompt for domain and email before setting non-interactive mode
 read -p "Enter your domain name (e.g., example.com): " domain_name
+echo "Domain name entered: $domain_name"
+
 read -p "Enter your email address for SSL certificate: " email_address
+echo "Email address entered: $email_address"
 
 # 1. Set the frontend to non-interactive to avoid prompts for initial setup
 export DEBIAN_FRONTEND=noninteractive
@@ -96,6 +99,10 @@ unset DEBIAN_FRONTEND
 sudo apt-get install -y nginx software-properties-common
 sudo apt-get install -y certbot python3-certbot-nginx
 
+# Verify the values again
+echo "Using domain name: $domain_name"
+echo "Using email address: $email_address"
+
 # Configure Nginx as a reverse proxy
 sudo bash -c "cat > /etc/nginx/sites-available/$domain_name <<EOF
 server {
@@ -118,11 +125,19 @@ server {
 }
 EOF"
 
+# Check if the configuration file was created
+if [ -f "/etc/nginx/sites-available/$domain_name" ]; then
+    echo "Nginx configuration file for $domain_name created successfully."
+else
+    echo "Error: Nginx configuration file for $domain_name was not created."
+fi
+
 # Enable the new Nginx configuration
 sudo ln -s /etc/nginx/sites-available/$domain_name /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl restart nginx
 
 # Obtain SSL certificate
+echo "Running certbot to obtain SSL certificate for $domain_name..."
 sudo certbot --nginx -d $domain_name -d www.$domain_name --email $email_address --agree-tos --redirect
 
 # Set up auto-renewal for SSL certificate
