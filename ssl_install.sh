@@ -25,9 +25,6 @@ sudo apt update
 # Install Apache, Certbot, and Python modules without interactive prompts
 sudo DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confnew" install apache2 certbot python3-certbot-apache
 
-# Check the status of Apache
-sudo systemctl status apache2
-
 # Install required Apache modules
 sudo a2enmod ssl
 sudo a2enmod proxy
