@@ -46,7 +46,11 @@ if ! sudo certbot certonly --non-interactive --agree-tos --standalone -d "$DOMAI
     echo "Switching to DNS-01 challenge method."
 
     # Use DNS-01 challenge instead
+    echo "Please add the following DNS TXT record and press Enter to continue:"
     sudo certbot certonly --manual --preferred-challenges=dns -d "$DOMAIN" --agree-tos -m "$EMAIL" --manual-public-ip-logging-ok
+
+    echo "Press Enter to continue after adding the DNS TXT record."
+    read -p ""
     
     if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then
         echo "Failed to obtain SSL certificate via DNS-01 challenge."
