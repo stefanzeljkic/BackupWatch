@@ -8,11 +8,20 @@ if errorlevel 1 (
     REM Install Chocolatey if not already installed
     powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
 
-    REM Use Chocolatey to install Git
-    choco install git -y
+    REM Use Chocolatey to force reinstall Git
+    choco install git -y --force
 
     REM Refresh environment variables
     refreshenv
+
+    REM Add Git to PATH if not already there
+    set "gitPath=C:\Program Files\Git\cmd"
+    if not exist "%gitPath%\git.exe" (
+        echo Git installation failed. Please install Git manually.
+        pause
+        exit /b
+    )
+    setx PATH "%PATH%;%gitPath%"
 
     REM Verify Git installation
     git --version >nul 2>&1
