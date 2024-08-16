@@ -69,10 +69,10 @@ fi
 
 # 9. Configure Nginx
 echo "Configuring Nginx..."
-sudo bash -c 'cat <<EOF > /etc/nginx/sites-available/backupwatch
+sudo bash -c "cat <<EOF > /etc/nginx/sites-available/backupwatch
 server {
     listen 80;
-    server_name '"$DOMAIN"';
+    server_name $DOMAIN;
     location / {
         proxy_pass http://localhost:8000;
         proxy_set_header Host \$host;
@@ -81,9 +81,9 @@ server {
         proxy_set_header X-Forwarded-Proto \$scheme;
     }
 }
-EOF'
+EOF"
 
-sudo ln -s /etc/nginx/sites-available/backupwatch /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/backupwatch /etc/nginx/sites-enabled/backupwatch
 sudo nginx -t && sudo systemctl restart nginx
 
 # 10. Obtain Let's Encrypt SSL certificate
