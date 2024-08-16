@@ -1,17 +1,23 @@
 #!/bin/bash
 
-# Prompt for domain and email before setting non-interactive mode
-read -p "Enter your domain name (e.g., example.com): " domain_name
-echo "Domain name entered: $domain_name"
+# Prvo ćemo tražiti unos domena i emaila
+read -p "Unesite domen (npr. example.com): " DOMAIN
+if [ -z "$DOMAIN" ]; then
+    echo "Domen ne može biti prazan. Molimo unesite validan domen."
+    exit 1
+fi
 
-read -p "Enter your email address for SSL certificate: " email_address
-echo "Email address entered: $email_address"
+read -p "Unesite email za Let's Encrypt: " EMAIL
+if [ -z "$EMAIL" ]; then
+    echo "Email ne može biti prazan. Molimo unesite validan email."
+    exit 1
+fi
 
-# 1. Set the frontend to non-interactive to avoid prompts for initial setup
+# 1. Set the frontend to non-interactive to avoid prompts
 export DEBIAN_FRONTEND=noninteractive
 
 # 2. Preemptively answer 'no' to any service restarts or configuration prompts
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y git curl python3 python3-pip ufw
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y git curl python3 python3-pip ufw nginx certbot python3-certbot-nginx
 
 # 3. Configure dpkg if it was interrupted previously
 sudo dpkg --configure -a
@@ -61,15 +67,45 @@ if ! python3 -c "import dotenv" &> /dev/null; then
     exit 1
 fi
 
-# 9. Enable UFW (firewall) non-interactively
+# 9. Configure Nginx
+echo "Configuring Nginx..."
+sudo bash -c 'cat <<EOF > /etc/nginx/sites-available/backupwatch
+server {
+    listen 80;
+    server_name '"$DOMAIN"';
+    location / {
+        proxy_pass http://localhost:8000;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+EOF'
+
+sudo ln -s /etc/nginx/sites-available/backupwatch /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl restart nginx
+
+# 10. Obtain Let's Encrypt SSL certificate
+echo "Obtaining SSL certificate..."
+sudo certbot --nginx --non-interactive --agree-tos --email "$EMAIL" -d "$DOMAIN"
+
+# 11. Set up auto-renewal for the certificate
+echo "Setting up certificate auto-renewal..."
+sudo bash -c 'echo "0 0,12 * * * root certbot renew --quiet" > /etc/cron.d/certbot_renewal'
+sudo systemctl reload nginx
+
+# 12. Enable UFW (firewall) non-interactively
 echo "Enabling UFW (firewall)..."
 echo "y" | sudo DEBIAN_FRONTEND=noninteractive ufw enable
 
-# 10. Open port 8000 in the firewall
-echo "Opening port 8000 in the firewall..."
-sudo ufw allow 8000
+# 13. Open port 443 and 80 in the firewall
+echo "Opening ports 443 and 80 in the firewall..."
+sudo ufw allow 443
+sudo ufw allow 80
+sudo ufw reload
 
-# 11. Create a systemd service file
+# 14. Create a systemd service file for BackupWatch
 echo "Creating systemd service file..."
 sudo bash -c 'cat <<EOF > /etc/systemd/system/backupwatch.service
 [Unit]
@@ -86,69 +122,10 @@ Restart=always
 WantedBy=multi-user.target
 EOF'
 
-# 12. Reload systemd, enable and start the service
+# 15. Reload systemd, enable and start the service
 echo "Reloading systemd, enabling and starting the BackupWatch service..."
 sudo systemctl daemon-reload
 sudo systemctl enable backupwatch.service
 sudo systemctl start backupwatch.service
-
-# Remove non-interactive setting for the rest of the script
-unset DEBIAN_FRONTEND
-
-# Install Nginx and Certbot interactively
-sudo apt-get install -y nginx software-properties-common
-sudo apt-get install -y certbot python3-certbot-nginx
-
-# Verify the values again
-echo "Using domain name: $domain_name"
-echo "Using email address: $email_address"
-
-# Configure Nginx as a reverse proxy
-sudo bash -c "cat > /etc/nginx/sites-available/$domain_name <<EOF
-server {
-    listen 80;
-    server_name $domain_name www.$domain_name;
-
-    location / {
-        proxy_pass http://127.0.0.1:8000;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-    }
-
-    location /.well-known/acme-challenge/ {
-        allow all;
-    }
-
-    return 301 https://\$host\$request_uri;
-}
-EOF"
-
-# Check if the configuration file was created
-if [ -f "/etc/nginx/sites-available/$domain_name" ]; then
-    echo "Nginx configuration file for $domain_name created successfully."
-else
-    echo "Error: Nginx configuration file for $domain_name was not created."
-fi
-
-# Enable the new Nginx configuration
-sudo ln -s /etc/nginx/sites-available/$domain_name /etc/nginx/sites-enabled/
-sudo nginx -t && sudo systemctl restart nginx
-
-# Obtain SSL certificate
-echo "Running certbot to obtain SSL certificate for $domain_name..."
-sudo certbot --nginx -d $domain_name -d www.$domain_name --email $email_address --agree-tos --redirect
-
-# Set up auto-renewal for SSL certificate
-sudo bash -c "cat > /etc/cron.d/certbot-renew <<EOF
-0 0 1 */2 * root certbot renew --quiet --post-hook 'systemctl reload nginx'
-EOF"
-
-sudo chmod 0644 /etc/cron.d/certbot-renew
-
-# Reload UFW at the end to avoid SSH disruption
-echo "Reloading UFW (firewall)..."
-sudo ufw reload
 
 echo "Installation and configuration are complete."
