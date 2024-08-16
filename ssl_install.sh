@@ -37,9 +37,12 @@ sudo a2enmod headers
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
 
-# Attempt to obtain an SSL certificate via HTTP-01 challenge using certonly
-if ! sudo certbot certonly --non-interactive --agree-tos --webroot -w /opt/BackupWatch/static/ -d "$DOMAIN" -m "$EMAIL"; then
-    echo "Failed to obtain SSL certificate via HTTP-01 challenge."
+# Stop Apache to free port 80
+sudo systemctl stop apache2
+
+# Attempt to obtain an SSL certificate via standalone mode
+if ! sudo certbot certonly --non-interactive --agree-tos --standalone -d "$DOMAIN" -m "$EMAIL"; then
+    echo "Failed to obtain SSL certificate via standalone mode."
     echo "Switching to DNS-01 challenge method."
 
     # Use DNS-01 challenge instead
@@ -50,6 +53,9 @@ if ! sudo certbot certonly --non-interactive --agree-tos --webroot -w /opt/Backu
         exit 1
     fi
 fi
+
+# Start Apache again
+sudo systemctl start apache2
 
 # Configure Apache to use the obtained SSL certificate
 APACHE_CONF="/etc/apache2/sites-available/$DOMAIN.conf"
