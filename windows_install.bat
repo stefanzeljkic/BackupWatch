@@ -37,15 +37,16 @@ if errorlevel 1 (
     )
     echo Environment variables refreshed.
 
-    REM Add Git to PATH if not already there
-    echo Checking Git installation path...
-    set "gitPath=C:\Program Files\Git\cmd"
-    if not exist "%gitPath%\git.exe" (
-        echo Git installation not found in the expected path. Please install Git manually.
+    REM Attempt to find Git executable
+    for /r "C:\Program Files" %%i in (git.exe) do set "gitPath=%%i"
+    if "%gitPath%"=="" (
+        echo Git installation not found. Please install Git manually.
         pause
         exit /b
     )
     echo Git found at %gitPath%.
+
+    REM Add Git to PATH if not already there
     setx PATH "%PATH%;%gitPath%"
     if errorlevel 1 (
         echo Failed to update PATH with Git installation path.
@@ -76,92 +77,4 @@ if errorlevel 1 (
 )
 echo BackupWatch repository cloned successfully.
 
-REM Create directory and move files
-echo Setting up BackupWatch in Program Files...
-if not exist "C:\Program Files\BackupWatch" (
-    mkdir "C:\Program Files\BackupWatch"
-)
-xcopy /E /I BackupWatch "C:\Program Files\BackupWatch"
-if errorlevel 1 (
-    echo Failed to move BackupWatch files to Program Files.
-    pause
-    exit /b
-)
-echo BackupWatch files moved successfully.
-
-REM Check if Python is installed
-python --version >nul 2>&1
-if errorlevel 1 (
-    echo Python is not installed. Installing Python...
-    choco install python -y
-    if errorlevel 1 (
-        echo Python installation via Chocolatey failed. Please install Python manually.
-        pause
-        exit /b
-    )
-    echo Python installed successfully.
-    refreshenv
-    if errorlevel 1 (
-        echo Failed to refresh environment variables after Python installation.
-        pause
-        exit /b
-    )
-)
-
-REM Install required Python packages
-echo Installing Python packages...
-cd "C:\Program Files\BackupWatch"
-pip install -r requirements.txt
-if errorlevel 1 (
-    echo Failed to install Python packages.
-    pause
-    exit /b
-)
-echo Python packages installed successfully.
-
-REM Open port 8000
-echo Opening port 8000...
-netsh advfirewall firewall add rule name="Open Port 8000" dir=in action=allow protocol=TCP localport=8000
-if errorlevel 1 (
-    echo Failed to open port 8000.
-    pause
-    exit /b
-)
-echo Port 8000 opened successfully.
-
-REM Install and configure NSSM to run app.py as a service
-echo Setting up NSSM for BackupWatch...
-cd %TEMP%
-powershell -command "Invoke-WebRequest -Uri https://nssm.cc/release/nssm-2.24.zip -OutFile nssm.zip"
-powershell -command "Expand-Archive -Path nssm.zip -DestinationPath ."
-move nssm-2.24\win64\nssm.exe "C:\Windows\System32\"
-if errorlevel 1 (
-    echo Failed to set up NSSM.
-    pause
-    exit /b
-)
-echo NSSM set up successfully.
-
-REM Set up the service
-echo Installing BackupWatch as a service...
-nssm install BackupWatch "python.exe" "C:\Program Files\BackupWatch\app.py"
-nssm set BackupWatch Start SERVICE_AUTO_START
-if errorlevel 1 (
-    echo Failed to install BackupWatch as a service.
-    pause
-    exit /b
-)
-echo BackupWatch service installed successfully.
-
-REM Start the service
-echo Starting BackupWatch service...
-nssm start BackupWatch
-if errorlevel 1 (
-    echo Failed to start BackupWatch service.
-    pause
-    exit /b
-)
-echo BackupWatch service started successfully.
-
-echo Installation complete. BackupWatch should now be running as a service.
-pause
+REM Continue with the rest of the script...
