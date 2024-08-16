@@ -79,6 +79,16 @@ if errorlevel 1 (
 )
 echo Python packages installed successfully.
 
+REM Install requests package
+echo Installing requests package...
+pip install requests
+if errorlevel 1 (
+    echo Failed to install requests package.
+    pause
+    exit /b
+)
+echo Requests package installed successfully.
+
 REM Open port 8000
 echo Opening port 8000...
 netsh advfirewall firewall add rule name="Open Port 8000" dir=in action=allow protocol=TCP localport=8000
