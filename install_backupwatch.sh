@@ -4,7 +4,7 @@
 export DEBIAN_FRONTEND=noninteractive
 
 # 2. Preemptively answer 'no' to any service restarts or configuration prompts
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y git curl python3 python3-pip ufw
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y git curl python3 python3-pip ufw nginx software-properties-common
 
 # 3. Configure dpkg if it was interrupted previously
 sudo dpkg --configure -a
@@ -38,6 +38,7 @@ Werkzeug==3.0.3
 WTForms==3.1.2
 bleach
 python-dotenv
+email_validator
 EOF'
 
 # 6. Install the required libraries from requirements.txt without any prompts
@@ -63,7 +64,55 @@ echo "Opening port 8000 in the firewall..."
 sudo ufw allow 8000
 sudo ufw reload
 
-# 11. Create a systemd service file
+# 11. Install Nginx
+echo "Installing Nginx..."
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y nginx
+
+# 12. Get domain name and email for SSL certificate
+read -p "Enter your domain name (e.g., example.com): " domain_name
+read -p "Enter your email address for SSL certificate: " email_address
+
+# 13. Configure Nginx as a reverse proxy
+echo "Configuring Nginx..."
+sudo bash -c "cat > /etc/nginx/sites-available/$domain_name <<EOF
+server {
+    listen 80;
+    server_name $domain_name www.$domain_name;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+
+    location /.well-known/acme-challenge/ {
+        allow all;
+    }
+
+    return 301 https://\$host\$request_uri;
+}
+EOF"
+
+# Enable Nginx site configuration
+sudo ln -s /etc/nginx/sites-available/$domain_name /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl restart nginx
+
+# 14. Install Certbot for SSL certificate
+echo "Installing Certbot and obtaining SSL certificate..."
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d $domain_name -d www.$domain_name --non-interactive --agree-tos --email $email_address
+
+# 15. Set up auto-renewal for SSL certificate
+echo "Setting up auto-renewal for SSL certificate..."
+sudo bash -c "cat > /etc/cron.d/certbot-renew <<EOF
+0 0 1 */2 * root certbot renew --quiet --post-hook 'systemctl reload nginx'
+EOF"
+
+sudo chmod 0644 /etc/cron.d/certbot-renew
+
+# 16. Create a systemd service file
 echo "Creating systemd service file..."
 sudo bash -c 'cat <<EOF > /etc/systemd/system/backupwatch.service
 [Unit]
@@ -80,7 +129,7 @@ Restart=always
 WantedBy=multi-user.target
 EOF'
 
-# 12. Reload systemd, enable and start the service
+# 17. Reload systemd, enable and start the service
 echo "Reloading systemd, enabling and starting the BackupWatch service..."
 sudo systemctl daemon-reload
 sudo systemctl enable backupwatch.service
