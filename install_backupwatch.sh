@@ -4,7 +4,7 @@
 export DEBIAN_FRONTEND=noninteractive
 
 # 2. Preemptively answer 'no' to any service restarts or configuration prompts
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y git curl python3 python3-pip ufw nginx software-properties-common
+sudo apt-get install -y git curl python3 python3-pip ufw nginx software-properties-common
 
 # 3. Configure dpkg if it was interrupted previously
 sudo dpkg --configure -a
@@ -42,12 +42,12 @@ email_validator
 EOF'
 
 # 6. Install the required libraries from requirements.txt without any prompts
-sudo DEBIAN_FRONTEND=noninteractive pip3 install -r /opt/BackupWatch/requirements.txt
+sudo pip3 install -r /opt/BackupWatch/requirements.txt
 
 # 7. Ensure bleach, python-dotenv, and email_validator are installed
-sudo DEBIAN_FRONTEND=noninteractive pip3 install bleach
-sudo DEBIAN_FRONTEND=noninteractive pip3 install python-dotenv
-sudo DEBIAN_FRONTEND=noninteractive pip3 install email_validator
+sudo pip3 install bleach
+sudo pip3 install python-dotenv
+sudo pip3 install email_validator
 
 # 8. Check if python-dotenv is installed correctly
 if ! python3 -c "import dotenv" &> /dev/null; then
@@ -57,7 +57,7 @@ fi
 
 # 9. Enable UFW (firewall) non-interactively
 echo "Enabling UFW (firewall)..."
-echo "y" | sudo DEBIAN_FRONTEND=noninteractive ufw enable
+echo "y" | sudo ufw enable
 
 # 10. Open port 8000 in the firewall
 echo "Opening port 8000 in the firewall..."
@@ -66,16 +66,13 @@ sudo ufw reload
 
 # 11. Install Nginx
 echo "Installing Nginx..."
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y nginx
+sudo apt-get install -y nginx
 
-# 12. Unset DEBIAN_FRONTEND to allow interactive input
-unset DEBIAN_FRONTEND
-
-# 13. Get domain name and email for SSL certificate
+# 12. Get domain name and email for SSL certificate
 read -p "Enter your domain name (e.g., example.com): " domain_name
 read -p "Enter your email address for SSL certificate: " email_address
 
-# 14. Configure Nginx as a reverse proxy
+# 13. Configure Nginx as a reverse proxy
 echo "Configuring Nginx..."
 sudo bash -c "cat > /etc/nginx/sites-available/$domain_name <<EOF
 server {
@@ -102,12 +99,12 @@ EOF"
 sudo ln -s /etc/nginx/sites-available/$domain_name /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl restart nginx
 
-# 15. Install Certbot for SSL certificate
+# 14. Install Certbot for SSL certificate
 echo "Installing Certbot and obtaining SSL certificate..."
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y certbot python3-certbot-nginx
+sudo apt-get install -y certbot python3-certbot-nginx
 sudo certbot --nginx -d $domain_name -d www.$domain_name --non-interactive --agree-tos --email $email_address
 
-# 16. Set up auto-renewal for SSL certificate
+# 15. Set up auto-renewal for SSL certificate
 echo "Setting up auto-renewal for SSL certificate..."
 sudo bash -c "cat > /etc/cron.d/certbot-renew <<EOF
 0 0 1 */2 * root certbot renew --quiet --post-hook 'systemctl reload nginx'
@@ -115,10 +112,7 @@ EOF"
 
 sudo chmod 0644 /etc/cron.d/certbot-renew
 
-# 17. Re-enable DEBIAN_FRONTEND for any further non-interactive steps
-export DEBIAN_FRONTEND=noninteractive
-
-# 18. Create a systemd service file
+# 16. Create a systemd service file
 echo "Creating systemd service file..."
 sudo bash -c 'cat <<EOF > /etc/systemd/system/backupwatch.service
 [Unit]
@@ -135,7 +129,7 @@ Restart=always
 WantedBy=multi-user.target
 EOF'
 
-# 19. Reload systemd, enable and start the service
+# 17. Reload systemd, enable and start the service
 echo "Reloading systemd, enabling and starting the BackupWatch service..."
 sudo systemctl daemon-reload
 sudo systemctl enable backupwatch.service
