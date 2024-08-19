@@ -39,7 +39,11 @@ python --version >nul 2>&1
 if errorlevel 1 (
     echo Python is not installed. Installing Python using Chocolatey...
     choco install python -y
-    if errorlevel 1 (
+    if errorlevel 3010 (
+        echo A reboot is required to complete the Python installation. Please reboot your computer and run this script again.
+        pause
+        exit /b
+    ) else if errorlevel 1 (
         echo Failed to install Python.
         pause
         exit /b
