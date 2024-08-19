@@ -99,7 +99,7 @@ if errorlevel 1 (
 )
 echo Port 5000 opened successfully.
 
-REM Install and configure NSSM to run app.py as a service
+REM Install and configure NSSM
 echo Setting up NSSM for BackupWatch...
 cd %TEMP%
 powershell -command "Invoke-WebRequest -Uri https://nssm.cc/release/nssm-2.24.zip -OutFile nssm.zip"
@@ -115,48 +115,5 @@ if errorlevel 1 (
 )
 echo NSSM set up successfully.
 
-REM Check if BackupWatch service exists and remove it
-"C:\Program Files\NSSM\nssm.exe" status BackupWatch >nul 2>&1
-if not errorlevel 1 (
-    echo BackupWatch service already exists. Removing existing service...
-    "C:\Program Files\NSSM\nssm.exe" remove BackupWatch confirm
-    if errorlevel 1 (
-        echo Failed to remove existing BackupWatch service.
-        pause
-        exit /b
-    )
-    echo Existing BackupWatch service removed successfully.
-)
-
-REM Set up the service with logging
-echo Installing BackupWatch as a service...
-"C:\Program Files\NSSM\nssm.exe" install BackupWatch "C:\Program Files\Python39\python.exe" "C:\BackupWatch\app.py"
-"C:\Program Files\NSSM\nssm.exe" set BackupWatch Start SERVICE_AUTO_START
-
-REM Specify log file locations
-"C:\Program Files\NSSM\nssm.exe" set BackupWatch AppStdout C:\BackupWatch\BackupWatch_stdout.log
-"C:\Program Files\NSSM\nssm.exe" set BackupWatch AppStderr C:\BackupWatch\BackupWatch_stderr.log
-"C:\Program Files\NSSM\nssm.exe" set BackupWatch AppRotateFiles 1
-"C:\Program Files\NSSM\nssm.exe" set BackupWatch AppRotateOnline 1
-"C:\Program Files\NSSM\nssm.exe" set BackupWatch AppRotateBytes 10485760
-
-if errorlevel 1 (
-    echo Failed to install BackupWatch as a service.
-    pause
-    exit /b
-)
-echo BackupWatch service installed successfully.
-
-REM Start the service manually for testing
-echo Starting BackupWatch service manually for testing...
-"C:\Program Files\NSSM\nssm.exe" start BackupWatch
-if errorlevel 1 (
-    echo Failed to start BackupWatch service.
-    echo Check the log files in C:\BackupWatch for more details.
-    pause
-    exit /b
-)
-echo BackupWatch service started successfully.
-
-echo Installation complete. BackupWatch should now be running as a service.
+echo Installation complete. NSSM is installed, but the BackupWatch service has not been configured.
 pause
