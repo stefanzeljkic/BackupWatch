@@ -183,5 +183,8 @@ To edit service:
 ```
 "C:\Program Files\NSSM\nssm.exe" edit BackupWatch
 ```
-
+To remove service:
+```
+C:\Program Files\NSSM\nssm.exe remove BackupWatch confirm
+```
 ---
