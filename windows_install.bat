@@ -147,11 +147,12 @@ if errorlevel 1 (
 )
 echo BackupWatch service installed successfully.
 
-REM Start the service
-echo Starting BackupWatch service...
+REM Start the service manually for testing
+echo Starting BackupWatch service manually for testing...
 "C:\Program Files\NSSM\nssm.exe" start BackupWatch
 if errorlevel 1 (
     echo Failed to start BackupWatch service.
+    echo Check the log files in C:\BackupWatch for more details.
     pause
     exit /b
 )
