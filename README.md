@@ -187,9 +187,7 @@ To edit service:
 ```
 To remove service:
 ```
-cd "C:\Program Files\NSSM"
+"C:\Program Files\NSSM\nssm.exe" remove BackupWatch confirm
 ```
-```
-nssm.exe remove BackupWatch confirm
-```
+
 ---
