@@ -19,6 +19,12 @@ if [ -z "$EMAIL" ]; then
     exit 1
 fi
 
+# Prompt for the method (HTTP-01 or DNS-01)
+echo "Select the method to activate the certificate:"
+echo "1) HTTP-01 (requires port 80 to be open)"
+echo "2) DNS-01 (manual DNS TXT record)"
+read -p "Enter the number corresponding to your choice (1 or 2): " METHOD
+
 # Update packages
 sudo apt update
 
@@ -37,29 +43,28 @@ sudo a2enmod headers
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
 
-# Stop Apache to free port 80
-sudo systemctl stop apache2
-
-# Attempt to obtain an SSL certificate via standalone mode
-if ! sudo certbot certonly --non-interactive --agree-tos --standalone -d "$DOMAIN" -m "$EMAIL"; then
-    echo "Failed to obtain SSL certificate via standalone mode."
-    echo "Switching to DNS-01 challenge method."
-
-    # Use DNS-01 challenge instead
-    echo "Please add the following DNS TXT record and press Enter to continue:"
+if [ "$METHOD" == "1" ]; then
+    # HTTP-01 challenge method
+    sudo systemctl stop apache2
+    if ! sudo certbot certonly --non-interactive --agree-tos --standalone -d "$DOMAIN" -m "$EMAIL"; then
+        echo "Failed to obtain SSL certificate via HTTP-01 challenge."
+        exit 1
+    fi
+    sudo systemctl start apache2
+elif [ "$METHOD" == "2" ]; then
+    # DNS-01 challenge method
+    echo "Using DNS-01 challenge method."
     sudo certbot certonly --manual --preferred-challenges=dns -d "$DOMAIN" --agree-tos -m "$EMAIL" --manual-public-ip-logging-ok
-
     echo "Press Enter to continue after adding the DNS TXT record."
     read -p ""
-    
     if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then
         echo "Failed to obtain SSL certificate via DNS-01 challenge."
         exit 1
     fi
+else
+    echo "Invalid selection. Please run the script again and choose 1 or 2."
+    exit 1
 fi
-
-# Start Apache again
-sudo systemctl start apache2
 
 # Configure Apache to use the obtained SSL certificate
 APACHE_CONF="/etc/apache2/sites-available/$DOMAIN.conf"
