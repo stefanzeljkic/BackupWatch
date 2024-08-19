@@ -67,6 +67,7 @@ if exist "%TEMP%\BackupWatch" (
 REM Clone BackupWatch repository
 echo Cloning BackupWatch repository...
 cd %TEMP%
+rmdir /s /q BackupWatch 2>nul
 git clone https://github.com/stefanzeljkic/BackupWatch.git
 if errorlevel 1 (
     echo Failed to clone BackupWatch repository.
