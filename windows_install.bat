@@ -39,11 +39,7 @@ python --version >nul 2>&1
 if errorlevel 1 (
     echo Python is not installed. Installing Python using Chocolatey...
     choco install python -y
-    if errorlevel 3010 (
-        echo A reboot is required to complete the Python installation. Please reboot your computer and run this script again.
-        pause
-        exit /b
-    ) else if errorlevel 1 (
+    if errorlevel 1 (
         echo Failed to install Python.
         pause
         exit /b
@@ -52,7 +48,10 @@ if errorlevel 1 (
 )
 
 REM Update PATH for Python
-SET "PATH=%PATH%;C:\Users\%USERNAME%\AppData\Local\Programs\Python\Python312\;C:\Users\%USERNAME%\AppData\Local\Programs\Python\Python312\Scripts\"
+setx PATH "%PATH%;C:\Python34\Scripts"
+setx PATH "%PATH%;C:\Python34\"
+
+REM Refresh environment variables
 refreshenv
 
 REM Check if BackupWatch directory already exists and remove it
@@ -87,7 +86,7 @@ if not exist "C:\BackupWatch" (
 xcopy /E /I BackupWatch "C:\BackupWatch"
 if errorlevel 1 (
     echo Failed to move BackupWatch files to C:\BackupWatch.
-        pause
+    pause
     exit /b
 )
 echo BackupWatch files moved successfully.
