@@ -82,6 +82,8 @@ Admins can:
 
 # 🔷 Installation on Ubuntu 22.04
 
+Minumum requirements= 1core-CPU, 2GB-RAM, 10GB-HDD
+
 ### ⚠️ To install BackupWatch on Ubuntu 22.04, follow these steps:
 
 ```
