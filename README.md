@@ -164,7 +164,7 @@ Note: If you activate the certificate using the DNS-01 challenge, the cron job w
 
 ### ⚠️ To install BackupWatch on Windwos, follow these steps:
 
-Run CMD as Administrator
+❗ Run CMD as Administrator ❗
 
 To install application C:\BackupWatch:
 ```
@@ -179,6 +179,8 @@ To start service:
 ```
 "C:\Program Files\NSSM\nssm.exe" start BackupWatch
 ```
+### 🟪 Additional Commands 
+
 To edit service:
 ```
 "C:\Program Files\NSSM\nssm.exe" edit BackupWatch
