@@ -14,9 +14,9 @@ if errorlevel 1 (
     REM Add Chocolatey to PATH manually
     setx PATH "%PATH%;C:\ProgramData\chocolatey\bin"
     
-    REM Start a new command prompt to refresh the environment variables
-    start cmd /c "echo Chocolatey installed successfully. && choco --version && pause"
-    
+    REM Inform the user to start a new command prompt
+    echo Chocolatey installed successfully. Please restart your command prompt to continue the installation.
+    pause
     exit /b
 ) else (
     echo Chocolatey is already installed.
@@ -25,12 +25,8 @@ if errorlevel 1 (
 REM Ensure choco command is available
 choco --version >nul 2>&1
 if errorlevel 1 (
-    echo Chocolatey command not recognized. Manually adding Chocolatey to PATH...
-    setx PATH "%PATH%;C:\ProgramData\chocolatey\bin"
-    
-    REM Start a new command prompt to refresh the environment variables
-    start cmd /c "echo Chocolatey added to PATH. && choco --version && pause"
-    
+    echo Chocolatey command not recognized. Please restart your command prompt and rerun this script.
+    pause
     exit /b
 )
 
