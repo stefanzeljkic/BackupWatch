@@ -2,34 +2,32 @@
 
 echo Starting BackupWatch installation...
 
+REM Check if Chocolatey is installed
+echo Checking if Chocolatey is installed...
+choco -v >nul 2>&1
+if errorlevel 1 (
+    echo Chocolatey is not installed. Installing Chocolatey...
+    powershell -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
+    if errorlevel 1 (
+        echo Failed to install Chocolatey.
+        pause
+        exit /b
+    )
+    echo Chocolatey installed successfully.
+)
+
 REM Check if Git is installed and in PATH
 echo Checking if Git is installed...
 git --version >nul 2>&1
 if errorlevel 1 (
-    echo Git is not installed or not in PATH. Attempting to add Git to PATH...
-
-    REM Add Git to PATH manually
-    set "gitPath=C:\Program Files\Git\cmd"
-    if exist "%gitPath%\git.exe" (
-        echo Adding %gitPath% to PATH...
-        setx PATH "%PATH%;%gitPath%"
-        refreshenv
-    ) else (
-        echo Git executable not found in %gitPath%. Please install Git manually.
-        pause
-        exit /b
-    )
-    echo Git added to PATH successfully.
-
-    REM Verify Git installation
-    echo Verifying Git installation...
-    git --version
+    echo Git is not installed. Installing Git using Chocolatey...
+    choco install git -y
     if errorlevel 1 (
-        echo Git installation verification failed. Please install Git manually.
+        echo Failed to install Git.
         pause
         exit /b
     )
-    echo Git installation verified successfully.
+    echo Git installed successfully.
 )
 
 REM Check if BackupWatch directory already exists and remove it
