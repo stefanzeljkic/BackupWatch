@@ -24,24 +24,13 @@ if errorlevel 1 (
         exit /b
     )
     echo Git installed successfully.
-)
-
-REM Check if BackupWatch directory already exists and remove it
-if exist "%TEMP%\BackupWatch" (
-    echo Removing existing BackupWatch directory...
-    rmdir /s /q "%TEMP%\BackupWatch"
-    if errorlevel 1 (
-        echo Failed to remove existing BackupWatch directory.
-        pause
-        exit /b
-    )
-    echo Existing BackupWatch directory removed successfully.
+    SET "PATH=%PATH%;C:\Program Files\Git\cmd"
+    echo Git path added successfully.
 )
 
 REM Clone GitHub repository
 echo Cloning BackupWatch repository...
-cd %TEMP%
-git clone https://github.com/stefanzeljkic/BackupWatch.git
+git clone https://github.com/stefanzeljkic/BackupWatch.git %TEMP%\BackupWatch
 if errorlevel 1 (
     echo Failed to clone BackupWatch repository.
     pause
@@ -54,7 +43,7 @@ echo Setting up BackupWatch in C:\BackupWatch...
 if not exist "C:\BackupWatch" (
     mkdir "C:\BackupWatch"
 )
-xcopy /E /I BackupWatch "C:\BackupWatch"
+xcopy /E /I "%TEMP%\BackupWatch" "C:\BackupWatch"
 if errorlevel 1 (
     echo Failed to move BackupWatch files to C:\BackupWatch.
     pause
