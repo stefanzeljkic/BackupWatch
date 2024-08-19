@@ -56,13 +56,13 @@ if errorlevel 1 (
 echo BackupWatch repository cloned successfully.
 
 REM Create directory and move files
-echo Setting up BackupWatch in Program Files...
-if not exist "C:\Program Files\BackupWatch" (
-    mkdir "C:\Program Files\BackupWatch"
+echo Setting up BackupWatch in C:\BackupWatch...
+if not exist "C:\BackupWatch" (
+    mkdir "C:\BackupWatch"
 )
-xcopy /E /I BackupWatch "C:\Program Files\BackupWatch"
+xcopy /E /I BackupWatch "C:\BackupWatch"
 if errorlevel 1 (
-    echo Failed to move BackupWatch files to Program Files.
+    echo Failed to move BackupWatch files to C:\BackupWatch.
     pause
     exit /b
 )
@@ -70,7 +70,7 @@ echo BackupWatch files moved successfully.
 
 REM Install required Python packages
 echo Installing Python packages...
-cd "C:\Program Files\BackupWatch"
+cd "C:\BackupWatch"
 pip install -r requirements.txt
 if errorlevel 1 (
     echo Failed to install Python packages.
@@ -130,7 +130,7 @@ if not errorlevel 1 (
 
 REM Set up the service
 echo Installing BackupWatch as a service...
-"C:\Program Files\NSSM\nssm.exe" install BackupWatch "C:\Program Files\Python39\python.exe" "C:\Program Files\BackupWatch\app.py"
+"C:\Program Files\NSSM\nssm.exe" install BackupWatch "C:\Program Files\Python39\python.exe" "C:\BackupWatch\app.py"
 "C:\Program Files\NSSM\nssm.exe" set BackupWatch Start SERVICE_AUTO_START
 if errorlevel 1 (
     echo Failed to install BackupWatch as a service.
