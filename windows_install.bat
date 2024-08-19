@@ -52,7 +52,8 @@ if errorlevel 1 (
 )
 
 REM Update PATH for Python
-SET "PATH=%PATH%;C:\Python39\;C:\Python39\Scripts\"
+SET "PATH=%PATH%;C:\Users\%USERNAME%\AppData\Local\Programs\Python\Python312\;C:\Users\%USERNAME%\AppData\Local\Programs\Python\Python312\Scripts\"
+refreshenv
 
 REM Check if BackupWatch directory already exists and remove it
 if exist "%TEMP%\BackupWatch" (
@@ -86,7 +87,7 @@ if not exist "C:\BackupWatch" (
 xcopy /E /I BackupWatch "C:\BackupWatch"
 if errorlevel 1 (
     echo Failed to move BackupWatch files to C:\BackupWatch.
-    pause
+        pause
     exit /b
 )
 echo BackupWatch files moved successfully.
