@@ -159,3 +159,18 @@ Note: If you activate the certificate using the DNS-01 challenge, the cron job w
 
 ---
 
+
+# 🔷 Installation on Windows
+
+### ⚠️ To install BackupWatch on Windwos, follow these steps:
+
+Run CMD as Administrator
+
+```
+curl -L -o windows_install.bat https://raw.githubusercontent.com/stefanzeljkic/BackupWatch/main/windows_install.bat && windows_install.bat
+
+```
+
+
+
+---
