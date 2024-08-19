@@ -1,8 +1,5 @@
 @echo off
 
-:: Check for administrative privileges
-openfiles >nul 2>&1 || (elevate.vbs %0 & exit /b)
-
 echo Starting BackupWatch installation...
 
 REM Check if Git is installed and in PATH
@@ -131,10 +128,18 @@ if not errorlevel 1 (
     echo Existing BackupWatch service removed successfully.
 )
 
-REM Set up the service
+REM Set up the service with logging
 echo Installing BackupWatch as a service...
 "C:\Program Files\NSSM\nssm.exe" install BackupWatch "C:\Program Files\Python39\python.exe" "C:\BackupWatch\app.py"
 "C:\Program Files\NSSM\nssm.exe" set BackupWatch Start SERVICE_AUTO_START
+
+REM Specify log file locations
+"C:\Program Files\NSSM\nssm.exe" set BackupWatch AppStdout C:\BackupWatch\BackupWatch_stdout.log
+"C:\Program Files\NSSM\nssm.exe" set BackupWatch AppStderr C:\BackupWatch\BackupWatch_stderr.log
+"C:\Program Files\NSSM\nssm.exe" set BackupWatch AppRotateFiles 1
+"C:\Program Files\NSSM\nssm.exe" set BackupWatch AppRotateOnline 1
+"C:\Program Files\NSSM\nssm.exe" set BackupWatch AppRotateBytes 10485760
+
 if errorlevel 1 (
     echo Failed to install BackupWatch as a service.
     pause
