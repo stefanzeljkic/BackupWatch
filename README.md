@@ -152,7 +152,7 @@ sudo curl -o ssl_install.sh https://raw.githubusercontent.com/stefanzeljkic/Back
 ```
 sudo bash ssl_install.sh
 ```
-After the installation, the application will be available at `https://<your-ip-address>/
+After the installation, the application will be available at `https://your-ip-address/
 
 
 Note: If you activate the certificate using the DNS-01 challenge, the cron job will not be able to automatically renew the certificate. Instead, you will need to manually update the DNS TXT record each time the certificate is renewed.
