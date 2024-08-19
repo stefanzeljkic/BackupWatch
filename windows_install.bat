@@ -13,9 +13,11 @@ if errorlevel 1 (
     
     REM Add Chocolatey to PATH manually
     setx PATH "%PATH%;C:\ProgramData\chocolatey\bin"
-    refreshenv
     
-    echo Chocolatey installed successfully.
+    REM Start a new command prompt to refresh the environment variables
+    start cmd /c "echo Chocolatey installed successfully. && choco --version && pause"
+    
+    exit /b
 ) else (
     echo Chocolatey is already installed.
 )
@@ -25,8 +27,11 @@ choco --version >nul 2>&1
 if errorlevel 1 (
     echo Chocolatey command not recognized. Manually adding Chocolatey to PATH...
     setx PATH "%PATH%;C:\ProgramData\chocolatey\bin"
-    refreshenv
-    echo Chocolatey added to PATH.
+    
+    REM Start a new command prompt to refresh the environment variables
+    start cmd /c "echo Chocolatey added to PATH. && choco --version && pause"
+    
+    exit /b
 )
 
 REM Check if Git is installed
