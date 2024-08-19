@@ -2,24 +2,34 @@
 
 echo Starting BackupWatch installation...
 
-REM Check if Chocolatey is installed
+REM Check if Chocolatey is installed and in PATH
 echo Checking if Chocolatey is installed...
-choco -v >nul 2>&1
+choco --version >nul 2>&1
 if errorlevel 1 (
     echo Chocolatey is not installed. Installing Chocolatey...
-    powershell -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
-    if errorlevel 1 (
-        echo Failed to install Chocolatey.
-        pause
-        exit /b
-    )
-    echo Chocolatey installed successfully.
     
-    REM Refresh the PATH to include Chocolatey
-    set "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
+    REM Install Chocolatey
+    @powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))" >nul 2>&1
+    
+    REM Add Chocolatey to PATH manually
+    setx PATH "%PATH%;C:\ProgramData\chocolatey\bin"
+    refreshenv
+    
+    echo Chocolatey installed successfully.
+) else (
+    echo Chocolatey is already installed.
 )
 
-REM Check if Git is installed and in PATH
+REM Ensure choco command is available
+choco --version >nul 2>&1
+if errorlevel 1 (
+    echo Chocolatey command not recognized. Manually adding Chocolatey to PATH...
+    setx PATH "%PATH%;C:\ProgramData\chocolatey\bin"
+    refreshenv
+    echo Chocolatey added to PATH.
+)
+
+REM Check if Git is installed
 echo Checking if Git is installed...
 git --version >nul 2>&1
 if errorlevel 1 (
@@ -31,6 +41,8 @@ if errorlevel 1 (
         exit /b
     )
     echo Git installed successfully.
+) else (
+    echo Git is already installed.
 )
 
 REM Check if BackupWatch directory already exists and remove it
