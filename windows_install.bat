@@ -104,7 +104,10 @@ echo Setting up NSSM for BackupWatch...
 cd %TEMP%
 powershell -command "Invoke-WebRequest -Uri https://nssm.cc/release/nssm-2.24.zip -OutFile nssm.zip"
 powershell -command "Expand-Archive -Path nssm.zip -DestinationPath . -Force"
-move nssm-2.24\win64\nssm.exe "C:\Windows\System32\"
+if not exist "C:\Program Files\NSSM" (
+    mkdir "C:\Program Files\NSSM"
+)
+move nssm-2.24\win64\nssm.exe "C:\Program Files\NSSM\"
 if errorlevel 1 (
     echo Failed to set up NSSM.
     pause
@@ -113,10 +116,10 @@ if errorlevel 1 (
 echo NSSM set up successfully.
 
 REM Check if BackupWatch service exists and remove it
-nssm status BackupWatch >nul 2>&1
+"C:\Program Files\NSSM\nssm.exe" status BackupWatch >nul 2>&1
 if not errorlevel 1 (
     echo BackupWatch service already exists. Removing existing service...
-    nssm remove BackupWatch confirm
+    "C:\Program Files\NSSM\nssm.exe" remove BackupWatch confirm
     if errorlevel 1 (
         echo Failed to remove existing BackupWatch service.
         pause
@@ -127,8 +130,8 @@ if not errorlevel 1 (
 
 REM Set up the service
 echo Installing BackupWatch as a service...
-nssm install BackupWatch "python.exe" "C:\Program Files\BackupWatch\app.py"
-nssm set BackupWatch Start SERVICE_AUTO_START
+"C:\Program Files\NSSM\nssm.exe" install BackupWatch "C:\Program Files\Python39\python.exe" "C:\Program Files\BackupWatch\app.py"
+"C:\Program Files\NSSM\nssm.exe" set BackupWatch Start SERVICE_AUTO_START
 if errorlevel 1 (
     echo Failed to install BackupWatch as a service.
     pause
@@ -138,7 +141,7 @@ echo BackupWatch service installed successfully.
 
 REM Start the service
 echo Starting BackupWatch service...
-nssm start BackupWatch
+"C:\Program Files\NSSM\nssm.exe" start BackupWatch
 if errorlevel 1 (
     echo Failed to start BackupWatch service.
     pause
