@@ -1,5 +1,8 @@
 @echo off
 
+:: Check for administrative privileges
+openfiles >nul 2>&1 || (elevate.vbs %0 & exit /b)
+
 echo Starting BackupWatch installation...
 
 REM Check if Git is installed and in PATH
