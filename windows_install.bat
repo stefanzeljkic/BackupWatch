@@ -18,7 +18,6 @@ if errorlevel 1 (
 
 REM Update PATH for Chocolatey
 SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
-refreshenv
 
 REM Check if Git is installed
 echo Checking if Git is installed...
@@ -50,7 +49,6 @@ if errorlevel 1 (
 
 REM Update PATH for Python
 SET "PATH=%PATH%;C:\Python39\;C:\Python39\Scripts\"
-refreshenv
 
 REM Check if BackupWatch directory already exists and remove it
 if exist "%TEMP%\BackupWatch" (
