@@ -82,7 +82,7 @@ Admins can:
 
 # 🔷 Installation on Ubuntu 22.04
 
-To install BackupWatch on Ubuntu 22.04, follow these steps:
+### 🟪 To install BackupWatch on Ubuntu 22.04, follow these steps:
 
 ```
 sudo apt-get update
@@ -104,7 +104,7 @@ After the installation, the application will be available at `http://<your-ip-ad
 Make sure to change these credentials after the first login to ensure the security of your BackupWatch instance.
 
 
-### Additional Commands (for Troubleshooting):
+### 🟪 Additional Commands (for Troubleshooting):
 
 If needed, you can restart the BackupWatch service and check its status with the following commands:
 
@@ -121,7 +121,7 @@ python3 /opt/BackupWatch/app.py
 ```
 
 
-### Time zones
+### 🟪 Time zones
 
 Application time is tied to the server's time zone
 To check time zone:
@@ -141,6 +141,18 @@ Find your time zone and apply to sudo timedatectl set-timezone "time zone" and r
 sudo systemctl restart backupwatch.service
 ```
 
+
+### 🟪 SSL + Apache 
+
+To install SSL certificate + Apache reverse proxy:
+
+```
+sudo curl -o ssl_install.sh https://raw.githubusercontent.com/stefanzeljkic/BackupWatch/main/ssl_install.sh
+```
+```
+sudo bash ssl_install.sh
+```
+Note: If you activate the certificate using the DNS-01 challenge, the cron job will not be able to automatically renew the certificate. Instead, you will need to manually update the DNS TXT record each time the certificate is renewed.
 
 ---
 
