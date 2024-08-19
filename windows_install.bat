@@ -2,32 +2,14 @@
 
 echo Starting BackupWatch installation...
 
-REM Check if Chocolatey is installed and in PATH
+REM Check if Chocolatey is installed
 echo Checking if Chocolatey is installed...
-choco --version >nul 2>&1
+choco -v >nul 2>&1
 if errorlevel 1 (
     echo Chocolatey is not installed. Installing Chocolatey...
-    
-    REM Install Chocolatey
-    @powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))" >nul 2>&1
-    
-    REM Add Chocolatey to PATH manually
-    setx PATH "%PATH%;C:\ProgramData\chocolatey\bin"
-    
-    REM Inform the user to start a new command prompt
-    echo Chocolatey installed successfully. Please restart your command prompt to continue the installation.
-    pause
-    exit /b
-) else (
-    echo Chocolatey is already installed.
-)
-
-REM Ensure choco command is available
-choco --version >nul 2>&1
-if errorlevel 1 (
-    echo Chocolatey command not recognized. Please restart your command prompt and rerun this script.
-    pause
-    exit /b
+    @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
+    SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
+    echo Chocolatey installed successfully.
 )
 
 REM Check if Git is installed
@@ -42,8 +24,6 @@ if errorlevel 1 (
         exit /b
     )
     echo Git installed successfully.
-) else (
-    echo Git is already installed.
 )
 
 REM Check if BackupWatch directory already exists and remove it
