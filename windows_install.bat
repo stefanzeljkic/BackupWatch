@@ -4,13 +4,21 @@ echo Starting BackupWatch installation...
 
 REM Check if Chocolatey is installed
 echo Checking if Chocolatey is installed...
-choco -v >nul 2>&1
+choco --version >nul 2>&1
 if errorlevel 1 (
     echo Chocolatey is not installed. Installing Chocolatey...
     @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
-    SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
+    if errorlevel 1 (
+        echo Failed to install Chocolatey.
+        pause
+        exit /b
+    )
     echo Chocolatey installed successfully.
 )
+
+REM Update PATH for Chocolatey
+SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
+refreshenv
 
 REM Check if Git is installed
 echo Checking if Git is installed...
@@ -24,13 +32,30 @@ if errorlevel 1 (
         exit /b
     )
     echo Git installed successfully.
-    SET "PATH=%PATH%;C:\Program Files\Git\cmd"
-    echo Git path added successfully.
 )
 
-REM Clone GitHub repository
+REM Check if Python is installed
+echo Checking if Python is installed...
+python --version >nul 2>&1
+if errorlevel 1 (
+    echo Python is not installed. Installing Python using Chocolatey...
+    choco install python -y
+    if errorlevel 1 (
+        echo Failed to install Python.
+        pause
+        exit /b
+    )
+    echo Python installed successfully.
+)
+
+REM Update PATH for Python
+SET "PATH=%PATH%;C:\Python39\;C:\Python39\Scripts\"
+refreshenv
+
+REM Clone BackupWatch repository
 echo Cloning BackupWatch repository...
-git clone https://github.com/stefanzeljkic/BackupWatch.git %TEMP%\BackupWatch
+cd %TEMP%
+git clone https://github.com/stefanzeljkic/BackupWatch.git
 if errorlevel 1 (
     echo Failed to clone BackupWatch repository.
     pause
@@ -43,7 +68,7 @@ echo Setting up BackupWatch in C:\BackupWatch...
 if not exist "C:\BackupWatch" (
     mkdir "C:\BackupWatch"
 )
-xcopy /E /I "%TEMP%\BackupWatch" "C:\BackupWatch"
+xcopy /E /I BackupWatch "C:\BackupWatch"
 if errorlevel 1 (
     echo Failed to move BackupWatch files to C:\BackupWatch.
     pause
