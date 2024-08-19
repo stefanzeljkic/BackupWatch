@@ -14,6 +14,9 @@ if errorlevel 1 (
         exit /b
     )
     echo Chocolatey installed successfully.
+    
+    REM Refresh the PATH to include Chocolatey
+    set "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
 )
 
 REM Check if Git is installed and in PATH
