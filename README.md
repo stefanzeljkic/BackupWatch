@@ -166,11 +166,22 @@ Note: If you activate the certificate using the DNS-01 challenge, the cron job w
 
 Run CMD as Administrator
 
+To install application C:\BackupWatch:
 ```
 curl -L -o windows_install.bat https://raw.githubusercontent.com/stefanzeljkic/BackupWatch/main/windows_install.bat && windows_install.bat
 
 ```
-
-
+To install BackupWatch to be runed as a service:
+```
+"C:\Program Files\NSSM\nssm.exe" install BackupWatch "C:\Program Files\Python39\python.exe" "C:\BackupWatch\app.py"
+```
+To start service:
+```
+"C:\Program Files\NSSM\nssm.exe" start BackupWatch
+```
+To edit service:
+```
+"C:\Program Files\NSSM\nssm.exe" edit BackupWatch
+```
 
 ---
