@@ -14,4 +14,3 @@ WTForms==3.1.2
 bleach
 python-dotenv
 email_validator
-requests==2.31.0
